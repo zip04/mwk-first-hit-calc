@@ -1,0 +1,1 @@
+# mwk-first-hit-calc
