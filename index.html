@@ -363,10 +363,29 @@
 
     <div class="card">
       <h2>结果与乘区拆解</h2>
+
       <div class="button-row" style="margin-top: 8px;">
+        <button type="button" class="small-btn" onclick="setCompareBaseline()">设为对比前</button>
+        <button type="button" class="small-btn" onclick="clearCompareBaseline()">清除对比</button>
         <button type="button" class="small-btn" onclick="clearCache()">清空缓存</button>
       </div>
       <div class="note" id="cacheStatus">缓存状态：等待读取。</div>
+      <div class="note">对比方法：先点“设为对比前”，然后任意修改命座、开关、面板、敌人或反应参数，当前结果会自动与对比前比较。</div>
+      <div class="box" id="compareBox" style="display:none; margin-top: 10px;">
+        <h3 style="margin-top:0;">前后对比</h3>
+        <div class="result" id="compareSummary">尚未记录对比前数据。</div>
+        <table>
+          <thead>
+            <tr>
+              <th>项目</th>
+              <th>对比前</th>
+              <th>当前</th>
+              <th>变化</th>
+            </tr>
+          </thead>
+          <tbody id="compareTable"></tbody>
+        </table>
+      </div>
 
       <div class="result">
         当前命座：<strong id="consSummary">-</strong><br>
@@ -1152,6 +1171,187 @@
         `;
         sourceTable.appendChild(tr);
       }
+
+      renderCompare({
+        time: new Date().toISOString(),
+        cons: {
+          mavuika: c.cons.mavuika,
+          bennett: c.cons.bennett,
+          xilonen: c.cons.xilonen,
+          citlali: c.cons.citlali
+        },
+        panel: {
+          baseAtk: p.baseAtk,
+          finalAtk: p.finalAtk,
+          finalEM: p.finalEM,
+          finalCR: p.finalCR,
+          finalCD: p.finalCD,
+          atkPctBuff: p.atkPctBuff,
+          flatAtkBuff: p.flatAtkBuff,
+          dmgBonus: p.dmgBonus,
+          resShred: p.resShred,
+          finalRes: p.finalRes,
+          resMult: p.resMult,
+          defReduction: p.defReduction,
+          defMult: p.defMult,
+          reactionMult: p.reactionMult,
+          totalBaseDmg: p.totalBaseDmg,
+          expected,
+          crit,
+          nonCrit
+        }
+      });
+    }
+
+
+    const COMPARE_KEY = "mwkFirstHitCompare.v1";
+    let compareBaseline = null;
+
+    function snapshotCurrent() {
+      const c = readConfig();
+      const p = buildPanel(c);
+      return {
+        time: new Date().toISOString(),
+        cons: {
+          mavuika: c.cons.mavuika,
+          bennett: c.cons.bennett,
+          xilonen: c.cons.xilonen,
+          citlali: c.cons.citlali
+        },
+        fields: collectPlainFields(),
+        panel: {
+          baseAtk: p.baseAtk,
+          finalAtk: p.finalAtk,
+          finalEM: p.finalEM,
+          finalCR: p.finalCR,
+          finalCD: p.finalCD,
+          atkPctBuff: p.atkPctBuff,
+          flatAtkBuff: p.flatAtkBuff,
+          dmgBonus: p.dmgBonus,
+          resShred: p.resShred,
+          finalRes: p.finalRes,
+          resMult: p.resMult,
+          defReduction: p.defReduction,
+          defMult: p.defMult,
+          reactionMult: p.reactionMult,
+          totalBaseDmg: p.totalBaseDmg,
+          expected: calcDamage(p, "expected"),
+          crit: calcDamage(p, "crit"),
+          nonCrit: calcDamage(p, "nonCrit")
+        }
+      };
+    }
+
+    function collectPlainFields() {
+      const fields = {};
+      document.querySelectorAll("input, select").forEach(el => {
+        if (!el.id) return;
+        fields[el.id] = el.type === "checkbox" ? el.checked : el.value;
+      });
+      return fields;
+    }
+
+    function consText(cons) {
+      return "玛C" + cons.mavuika + " / 班C" + cons.bennett + " / 希C" + cons.xilonen + " / 茜C" + cons.citlali;
+    }
+
+    function signedNumber(n, digits = 0) {
+      if (!Number.isFinite(n)) return "-";
+      const sign = n > 0 ? "+" : "";
+      return sign + Number(n).toFixed(digits);
+    }
+
+    function signedFmt(n) {
+      if (!Number.isFinite(n)) return "-";
+      const sign = n > 0 ? "+" : "";
+      return sign + fmt(n);
+    }
+
+    function signedPctChange(now, old) {
+      if (!Number.isFinite(now) || !Number.isFinite(old) || old === 0) return "-";
+      const r = now / old - 1;
+      const sign = r > 0 ? "+" : "";
+      return sign + (r * 100).toFixed(2) + "%";
+    }
+
+    function compareRow(name, before, after, formatter = fmt, digitsForDelta = 0, addPercentChange = false) {
+      const delta = after - before;
+      const percentText = addPercentChange ? "（" + signedPctChange(after, before) + "）" : "";
+      return `
+        <tr>
+          <td>${name}</td>
+          <td>${formatter(before)}</td>
+          <td>${formatter(after)}</td>
+          <td>${digitsForDelta === 0 ? signedFmt(delta) : signedNumber(delta, digitsForDelta)}${percentText}</td>
+        </tr>
+      `;
+    }
+
+    function renderCompare(currentSnapshot = null) {
+      const box = document.getElementById("compareBox");
+      const summary = document.getElementById("compareSummary");
+      const table = document.getElementById("compareTable");
+
+      if (!box || !summary || !table) return;
+
+      if (!compareBaseline) {
+        box.style.display = "none";
+        return;
+      }
+
+      const cur = currentSnapshot || snapshotCurrent();
+      const b = compareBaseline.panel;
+      const a = cur.panel;
+
+      box.style.display = "block";
+      summary.innerHTML =
+        "对比前：<strong>" + consText(compareBaseline.cons) + "</strong>　" +
+        "当前任意改动后：<strong>" + consText(cur.cons) + "</strong><br>" +
+        "首刀暴击变化：<strong>" + signedFmt(a.crit - b.crit) + "（" + signedPctChange(a.crit, b.crit) + "）</strong>　" +
+        "期望变化：<strong>" + signedFmt(a.expected - b.expected) + "（" + signedPctChange(a.expected, b.expected) + "）</strong>";
+
+      table.innerHTML = "";
+      table.innerHTML += compareRow("首刀期望伤害", b.expected, a.expected, fmt, 0, true);
+      table.innerHTML += compareRow("首刀暴击伤害", b.crit, a.crit, fmt, 0, true);
+      table.innerHTML += compareRow("首刀不暴击伤害", b.nonCrit, a.nonCrit, fmt, 0, true);
+      table.innerHTML += compareRow("最终攻击力", b.finalAtk, a.finalAtk, fmt, 0, false);
+      table.innerHTML += compareRow("最终精通", b.finalEM, a.finalEM, fmt, 0, false);
+      table.innerHTML += compareRow("增伤区", b.dmgBonus, a.dmgBonus, x => fmt1(x) + "%", 1, false);
+      table.innerHTML += compareRow("减抗合计", b.resShred, a.resShred, x => fmt1(x) + "%", 1, false);
+      table.innerHTML += compareRow("最终火抗", b.finalRes, a.finalRes, x => fmt1(x) + "%", 1, false);
+      table.innerHTML += compareRow("抗性乘区", b.resMult, a.resMult, fmt2, 4, true);
+      table.innerHTML += compareRow("防御乘区", b.defMult, a.defMult, fmt2, 4, true);
+      table.innerHTML += compareRow("反应乘区", b.reactionMult, a.reactionMult, fmt2, 4, true);
+      table.innerHTML += compareRow("总基础伤害区", b.totalBaseDmg, a.totalBaseDmg, fmt, 0, true);
+    }
+
+    function setCompareBaseline() {
+      compareBaseline = snapshotCurrent();
+      try {
+        localStorage.setItem(COMPARE_KEY, JSON.stringify(compareBaseline));
+      } catch (err) {}
+      renderCompare(compareBaseline);
+    }
+
+    function clearCompareBaseline() {
+      compareBaseline = null;
+      try {
+        localStorage.removeItem(COMPARE_KEY);
+      } catch (err) {}
+      renderCompare();
+    }
+
+    function loadCompareBaseline() {
+      try {
+        const raw = localStorage.getItem(COMPARE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (data && data.panel && data.cons) {
+          compareBaseline = data;
+        }
+      } catch (err) {
+        compareBaseline = null;
+      }
     }
 
     const CACHE_KEY = "mwkFirstHitCalc.v1";
@@ -1283,6 +1483,7 @@
       }
     }
 
+    loadCompareBaseline();
     loadCache();
     updateLocks();
     calculate();
