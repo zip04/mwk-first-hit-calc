@@ -366,6 +366,11 @@
 
       <button onclick="calculate()">计算</button>
 
+      <div class="button-row" style="margin-top: 8px;">
+        <button type="button" class="small-btn" onclick="clearCache()">清空缓存</button>
+      </div>
+      <div class="note" id="cacheStatus">缓存状态：等待读取。</div>
+
       <div class="result">
         当前命座：<strong id="consSummary">-</strong><br>
         有效基础攻击：<strong id="outBaseAtk">-</strong><br>
@@ -508,6 +513,7 @@
 
       updateLocks();
       calculate();
+      saveCache();
     }
 
     function updateLocks() {
@@ -1151,12 +1157,149 @@
       }
     }
 
+    const CACHE_KEY = "mwkFirstHitCalc.v1";
+    let cacheTimer = null;
+    let isRestoringCache = false;
+
+    function renderConsButtons() {
+      const map = {
+        mavuika: "mavuikaButtons",
+        bennett: "bennettButtons",
+        xilonen: "xilonenButtons",
+        citlali: "citlaliButtons"
+      };
+
+      Object.keys(map).forEach(name => {
+        document.querySelectorAll("#" + map[name] + " .small-btn").forEach((btn, index) => {
+          btn.classList.toggle("active", index === state[name]);
+        });
+      });
+    }
+
+    function updateCacheStatus(message) {
+      const el = document.getElementById("cacheStatus");
+      if (el) {
+        el.textContent = "缓存状态：" + message;
+      }
+    }
+
+    function collectCacheData() {
+      const fields = {};
+
+      document.querySelectorAll("input, select").forEach(el => {
+        if (!el.id) return;
+
+        if (el.type === "checkbox") {
+          fields[el.id] = el.checked;
+        } else {
+          fields[el.id] = el.value;
+        }
+      });
+
+      return {
+        version: 1,
+        updatedAt: new Date().toISOString(),
+        state: {
+          mavuika: state.mavuika,
+          bennett: state.bennett,
+          xilonen: state.xilonen,
+          citlali: state.citlali
+        },
+        fields
+      };
+    }
+
+    function saveCache(showMessage = false) {
+      if (isRestoringCache) return;
+
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(collectCacheData()));
+
+        if (showMessage) {
+          updateCacheStatus("已手动保存。");
+        } else {
+          updateCacheStatus("已自动保存。");
+        }
+      } catch (err) {
+        updateCacheStatus("保存失败，浏览器可能禁用了 localStorage。");
+      }
+    }
+
+    function scheduleSaveCache() {
+      clearTimeout(cacheTimer);
+      cacheTimer = setTimeout(() => saveCache(false), 150);
+    }
+
+    function loadCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+
+        if (!raw) {
+          updateCacheStatus("未发现缓存，当前为默认配置。");
+          return;
+        }
+
+        const data = JSON.parse(raw);
+
+        if (!data || !data.fields) {
+          updateCacheStatus("缓存格式异常，已忽略。");
+          return;
+        }
+
+        isRestoringCache = true;
+
+        if (data.state) {
+          state.mavuika = Number(data.state.mavuika ?? state.mavuika);
+          state.bennett = Number(data.state.bennett ?? state.bennett);
+          state.xilonen = Number(data.state.xilonen ?? state.xilonen);
+          state.citlali = Number(data.state.citlali ?? state.citlali);
+        }
+
+        renderConsButtons();
+
+        document.querySelectorAll("input, select").forEach(el => {
+          if (!el.id || !(el.id in data.fields)) return;
+
+          if (el.type === "checkbox") {
+            el.checked = Boolean(data.fields[el.id]);
+          } else {
+            el.value = data.fields[el.id];
+          }
+        });
+
+        isRestoringCache = false;
+        updateLocks();
+        calculate();
+        updateCacheStatus("已读取上次配置。");
+      } catch (err) {
+        isRestoringCache = false;
+        updateCacheStatus("读取失败，缓存可能已损坏。");
+      }
+    }
+
+    function clearCache() {
+      try {
+        localStorage.removeItem(CACHE_KEY);
+        updateCacheStatus("已清空缓存。当前页面数值不会立即重置，刷新后恢复默认值。");
+      } catch (err) {
+        updateCacheStatus("清空失败，浏览器可能禁用了 localStorage。");
+      }
+    }
+
+    loadCache();
     updateLocks();
     calculate();
 
     document.querySelectorAll("input, select").forEach(el => {
-      el.addEventListener("input", calculate);
-      el.addEventListener("change", calculate);
+      el.addEventListener("input", () => {
+        calculate();
+        scheduleSaveCache();
+      });
+
+      el.addEventListener("change", () => {
+        calculate();
+        scheduleSaveCache();
+      });
     });
   </script>
 </body>
