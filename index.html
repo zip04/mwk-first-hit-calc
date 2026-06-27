@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>火希茜班·玛薇卡首刀专用计算器</title>
+  <style>
+    body {
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 22px;
+      color: #222;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 26px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1.25fr;
+      gap: 16px;
+    }
+
+    .card {
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      font-size: 19px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+      margin-top: 0;
+    }
+
+    h3 {
+      font-size: 15px;
+      color: #444;
+      margin: 16px 0 8px;
+    }
+
+    label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0;
+      font-size: 13px;
+    }
+
+    input, select {
+      width: 124px;
+      padding: 5px 6px;
+      border: 1px solid #aaa;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 13px;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 9px;
+      background: #d9480f;
+      color: white;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    button:hover {
+      background: #bf3e0c;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .small-btn {
+      width: auto;
+      margin-top: 0;
+      padding: 5px 9px;
+      background: #e9ecef;
+      color: #222;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .small-btn:hover {
+      background: #dee2e6;
+    }
+
+    .small-btn.active {
+      background: #d9480f;
+      color: white;
+    }
+
+    .box {
+      margin-bottom: 12px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+
+    .locked {
+      opacity: 0.42;
+    }
+
+    .locked input,
+    .locked select {
+      pointer-events: none;
+    }
+
+    .result {
+      line-height: 1.85;
+      font-size: 14px;
+    }
+
+    .result strong {
+      color: #c92a2a;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 7px;
+      border-bottom: 1px solid #ddd;
+      text-align: right;
+    }
+
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+
+    .note {
+      margin-top: 10px;
+      color: #666;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .process {
+      margin-top: 10px;
+      padding: 10px;
+      background: #333;
+      color: #eee;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.6;
+      word-break: break-all;
+    }
+
+    @media (max-width: 1200px) {
+      .layout {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>火希茜班·玛薇卡 Q 首刀专用计算器</h1>
+
+  <div class="layout">
+    <div class="card">
+      <h2>玛薇卡</h2>
+
+      <div class="box">
+        <div style="margin-bottom: 8px;">玛薇卡命座</div>
+        <div id="mavuikaButtons" class="button-row">
+          <button type="button" class="small-btn active" onclick="setCons('mavuika', 0)">C0</button>
+          <button type="button" class="small-btn" onclick="setCons('mavuika', 1)">C1</button>
+          <button type="button" class="small-btn" onclick="setCons('mavuika', 2)">C2</button>
+          <button type="button" class="small-btn" onclick="setCons('mavuika', 3)">C3</button>
+          <button type="button" class="small-btn" onclick="setCons('mavuika', 4)">C4</button>
+          <button type="button" class="small-btn" onclick="setCons('mavuika', 5)">C5</button>
+          <button type="button" class="small-btn" onclick="setCons('mavuika', 6)">C6</button>
+        </div>
+
+        <label data-role="lock" data-character="mavuika" data-cons="1">C1攻击+40% <input id="mavC1Atk" type="checkbox" checked></label>
+        <label data-role="lock" data-character="mavuika" data-cons="2">C2基础攻击+200 <input id="mavC2BaseAtk" type="checkbox" checked></label>
+        <label data-role="lock" data-character="mavuika" data-cons="2">C2首刀额外倍率 <input id="mavC2Extra" type="checkbox" checked></label>
+        <label data-role="lock" data-character="mavuika" data-cons="4">C4强化A4 <input id="mavC4A4" type="checkbox" checked></label>
+        <label data-role="lock" data-character="mavuika" data-cons="6">C6首刀吃20%防御降低 <input id="mavC6Def" type="checkbox" checked></label>
+      </div>
+
+      <h3>基础与裸面板</h3>
+      <label>玛薇卡等级 <input id="mavLevel" type="number" min="1" max="90" value="90"></label>
+      <label>角色基础攻击 <input id="mavCharBaseAtk" type="number" value="359"></label>
+      <label>武器基础攻击 <input id="mavWeaponBaseAtk" type="number" value="741"></label>
+      <label>专武触发 <input id="mavSigActive" type="checkbox" checked></label>
+      <div class="note">专武副词条暴击率已体现在裸面板暴击率中，本开关只计入触发后的攻击+49%、暴击伤害+35%。</div>
+      <label>裸面板攻击力 <input id="mavPanelAtk" type="number" value="" placeholder="角色页攻击"></label>
+      <label>裸面板元素精通 <input id="mavEM" type="number" value="" placeholder="角色页精通"></label>
+      <label>裸面板暴击率% <input id="mavCritRate" type="number" step="0.1" value="" placeholder="角色页暴率"></label>
+      <label>裸面板暴击伤害% <input id="mavCritDmg" type="number" step="0.1" value="" placeholder="角色页暴伤"></label>
+      <label>裸面板火伤/自身增伤% <input id="mavSelfDmg" type="number" step="0.1" value="" placeholder="角色页火伤"></label>
+
+      <div class="note">
+        “裸面板”指角色详情页里不进战斗、不吃班尼特、双火、宗室、讨龙、希诺宁、茜特菈莉时的数值。
+      </div>
+
+      <h3>Q首刀倍率</h3>
+      <label>Q基础等级 <input id="mavQLevel" type="number" min="1" max="13" value="10"></label>
+      <label>实际Q等级 <input id="mavQEffectiveLevel" type="number" value="10" disabled></label>
+      <label>Q基础倍率% <input id="mavQBaseMult" type="number" step="0.1" value="800.6" disabled></label>
+      <label>战意值 <input id="mavFS" type="number" min="0" max="200" value="200"></label>
+      <label>每点战意倍率% <input id="mavFSMult" type="number" step="0.001" value="2.9" disabled></label>
+      <label>C2额外倍率% <input id="mavC2Mult" type="number" step="0.1" value="120"></label>
+      <label>其他基础伤害 <input id="mavOtherBaseDmg" type="number" value="0"></label>
+
+      <h3>玛薇卡自身天赋/套装</h3>
+      <label>A1攻击% <input id="mavA1AtkPct" type="number" step="0.1" value="30"></label>
+      <label>A4生效 <input id="mavA4Active" type="checkbox" checked></label>
+      <label>Q后经过时间s <input id="mavA4Elapsed" type="number" step="0.1" value="0"></label>
+      <label>黑曜2件15%增伤 <input id="obsidian2" type="checkbox" checked></label>
+      <label>黑曜4件40%暴击 <input id="obsidian4" type="checkbox" checked></label>
+    </div>
+
+    <div class="card">
+      <h2>班尼特</h2>
+
+      <div class="box">
+        <div style="margin-bottom: 8px;">班尼特命座</div>
+        <div id="bennettButtons" class="button-row">
+          <button type="button" class="small-btn active" onclick="setCons('bennett', 0)">C0</button>
+          <button type="button" class="small-btn" onclick="setCons('bennett', 1)">C1</button>
+          <button type="button" class="small-btn" onclick="setCons('bennett', 2)">C2</button>
+          <button type="button" class="small-btn" onclick="setCons('bennett', 3)">C3</button>
+          <button type="button" class="small-btn" onclick="setCons('bennett', 4)">C4</button>
+          <button type="button" class="small-btn" onclick="setCons('bennett', 5)">C5</button>
+          <button type="button" class="small-btn" onclick="setCons('bennett', 6)">C6</button>
+        </div>
+
+        <label>班尼特Q生效 <input id="benActive" type="checkbox" checked></label>
+        <label data-role="lock" data-character="bennett" data-cons="1">C1额外20%基础攻击 <input id="benC1Active" type="checkbox" checked></label>
+        <label data-role="lock" data-character="bennett" data-cons="6">C6火伤+15% <input id="benC6Active" type="checkbox" checked></label>
+      </div>
+
+      <h3>班尼特攻击拐</h3>
+      <label>班尼特Q基础等级 <input id="benQLevel" type="number" min="1" max="13" value="10"></label>
+      <label>班尼特实际Q等级 <input id="benQEffectiveLevel" type="number" value="10" disabled></label>
+      <label>Q攻击加成比例% <input id="benQRatio" type="number" step="0.1" value="100.8" disabled></label>
+      <label>班尼特角色基础攻击 <input id="benCharBaseAtk" type="number" value="191"></label>
+      <label>班尼特武器白值 <input id="benWeaponBaseAtk" type="number" value="674"></label>
+
+      <h3>队伍攻击拐</h3>
+      <label>双火共鸣+25%攻击 <input id="pyroResonance" type="checkbox" checked></label>
+      <label>宗室4件+20%攻击 <input id="noblesse" type="checkbox" checked></label>
+      <label>其他固定攻击 <input id="otherFlatAtk" type="number" value="0"></label>
+      <label>其他攻击% <input id="otherAtkPct" type="number" step="0.1" value="0"></label>
+
+      <h2 style="margin-top: 18px;">希诺宁</h2>
+
+      <div class="box">
+        <div style="margin-bottom: 8px;">希诺宁命座</div>
+        <div id="xilonenButtons" class="button-row">
+          <button type="button" class="small-btn active" onclick="setCons('xilonen', 0)">C0</button>
+          <button type="button" class="small-btn" onclick="setCons('xilonen', 1)">C1</button>
+          <button type="button" class="small-btn" onclick="setCons('xilonen', 2)">C2</button>
+          <button type="button" class="small-btn" onclick="setCons('xilonen', 3)">C3</button>
+          <button type="button" class="small-btn" onclick="setCons('xilonen', 4)">C4</button>
+          <button type="button" class="small-btn" onclick="setCons('xilonen', 5)">C5</button>
+          <button type="button" class="small-btn" onclick="setCons('xilonen', 6)">C6</button>
+        </div>
+
+        <label>希诺宁减抗生效 <input id="xiloActive" type="checkbox" checked></label>
+        <label data-role="lock" data-character="xilonen" data-cons="2">C2火角色攻击+45% <input id="xiloC2Active" type="checkbox" checked></label>
+        <label>磐岩4件火伤+35% <input id="petraActive" type="checkbox" checked></label>
+      </div>
+
+      <h3>希诺宁乘区</h3>
+      <label>技能火抗降低% <input id="xiloResShred" type="number" step="0.1" value="36"></label>
+      <label>C2火角色攻击% <input id="xiloC2AtkPct" type="number" step="0.1" value="45"></label>
+      <label>磐岩火伤% <input id="petraDmg" type="number" step="0.1" value="35"></label>
+      <label>武器/其他增伤% <input id="xiloOtherDmg" type="number" step="0.1" value="0"></label>
+    </div>
+
+    <div class="card">
+      <h2>茜特菈莉</h2>
+
+      <div class="box">
+        <div style="margin-bottom: 8px;">茜特菈莉命座</div>
+        <div id="citlaliButtons" class="button-row">
+          <button type="button" class="small-btn active" onclick="setCons('citlali', 0)">C0</button>
+          <button type="button" class="small-btn" onclick="setCons('citlali', 1)">C1</button>
+          <button type="button" class="small-btn" onclick="setCons('citlali', 2)">C2</button>
+          <button type="button" class="small-btn" onclick="setCons('citlali', 3)">C3</button>
+          <button type="button" class="small-btn" onclick="setCons('citlali', 4)">C4</button>
+          <button type="button" class="small-btn" onclick="setCons('citlali', 5)">C5</button>
+          <button type="button" class="small-btn" onclick="setCons('citlali', 6)">C6</button>
+        </div>
+
+        <label>茜特菈莉减抗生效 <input id="citActive" type="checkbox" checked></label>
+        <label data-role="lock" data-character="citlali" data-cons="1">C1星刃增伤生效 <input id="citC1Active" type="checkbox" checked></label>
+        <label data-role="lock" data-character="citlali" data-cons="2">C2精通/额外减抗生效 <input id="citC2Active" type="checkbox" checked></label>
+        <label>讨龙生效 <input id="ttdsActive" type="checkbox" checked></label>
+        <label>勇者/烬城4件火伤+40% <input id="scrollActive" type="checkbox" checked></label>
+      </div>
+
+      <h3>茜特菈莉乘区</h3>
+      <label>茜特菈莉精通 <input id="citEM" type="number" value="800"></label>
+      <label>基础火抗降低% <input id="citResShred" type="number" step="0.1" value="20"></label>
+      <label>C2额外火抗降低% <input id="citC2ResShred" type="number" step="0.1" value="20"></label>
+      <label>C2给玛薇卡精通 <input id="citC2EMBuff" type="number" value="250"></label>
+      <label>C1星刃倍率：茜EM× <input id="citC1EMScale" type="number" step="0.1" value="2"></label>
+      <label>勇者/烬城火伤% <input id="scrollDmg" type="number" step="0.1" value="40"></label>
+
+      <h3>讨龙</h3>
+      <label>
+        讨龙精炼
+        <select id="ttdsRefine">
+          <option value="24">R1 24%</option>
+          <option value="30">R2 30%</option>
+          <option value="36">R3 36%</option>
+          <option value="42">R4 42%</option>
+          <option value="48" selected>R5 48%</option>
+        </select>
+      </label>
+
+      <h2 style="margin-top: 18px;">敌人与反应</h2>
+
+      <label>
+        反应类型
+        <select id="reaction">
+          <option value="none">无反应</option>
+          <option value="melt" selected>火融化</option>
+          <option value="vape">火蒸发</option>
+        </select>
+      </label>
+
+      <label>反应伤害加成% <input id="reactionBonus" type="number" step="0.1" value="0"></label>
+      <label>敌人等级 <input id="enemyLevel" type="number" value="110"></label>
+      <label>敌人初始火抗% <input id="enemyRes" type="number" step="0.1" value="10"></label>
+      <label>其他防御降低% <input id="otherDefReduction" type="number" step="0.1" value="0"></label>
+      <label>防御无视% <input id="defIgnore" type="number" step="0.1" value="0"></label>
+      <label>目标伤害减免% <input id="targetDmgReduction" type="number" step="0.1" value="0"></label>
+      <label>手动防御乘区 <input id="manualDef" type="checkbox"></label>
+      <label>防御乘区数值 <input id="manualDefMult" type="number" step="0.001" value="0.5"></label>
+    </div>
+
+    <div class="card">
+      <h2>结果与乘区拆解</h2>
+
+      <button onclick="calculate()">计算</button>
+
+      <div class="result">
+        当前命座：<strong id="consSummary">-</strong><br>
+        有效基础攻击：<strong id="outBaseAtk">-</strong><br>
+        最终攻击力：<strong id="outAtk">-</strong><br>
+        最终精通：<strong id="outEM">-</strong><br>
+        最终暴击率：<strong id="outCR">-</strong><br>
+        最终暴击伤害：<strong id="outCD">-</strong><br>
+        <br>
+        攻击%拐：<strong id="outAtkPctBuff">-</strong><br>
+        固定攻击拐：<strong id="outFlatAtkBuff">-</strong><br>
+        增伤区：<strong id="outDmgBonus">-</strong><br>
+        减抗合计：<strong id="outResShred">-</strong><br>
+        最终火抗：<strong id="outFinalRes">-</strong><br>
+        抗性乘区：<strong id="outResMult">-</strong><br>
+        防御降低：<strong id="outDefReduction">-</strong><br>
+        防御乘区：<strong id="outDefMult">-</strong><br>
+        反应乘区：<strong id="outReactionMult">-</strong><br>
+        <br>
+        Q基础伤害：<strong id="outQBaseDmg">-</strong><br>
+        战意基础伤害：<strong id="outFSDmg">-</strong><br>
+        C2基础伤害：<strong id="outC2Dmg">-</strong><br>
+        茜C1基础伤害：<strong id="outCitC1Dmg">-</strong><br>
+        总基础伤害区：<strong id="outBaseDmg">-</strong><br>
+        <br>
+        首刀期望伤害：<strong id="outExpected">-</strong><br>
+        首刀暴击伤害：<strong id="outCrit">-</strong><br>
+        首刀不暴击伤害：<strong id="outNonCrit">-</strong>
+      </div>
+
+      <div class="process" id="outProcess">请先填写玛薇卡裸面板攻击、精通、暴击、暴伤、火伤。</div>
+
+      <h3>四词条边际收益</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>词条</th>
+            <th>等价增加</th>
+            <th>期望提升</th>
+          </tr>
+        </thead>
+        <tbody id="marginalTable"></tbody>
+      </table>
+
+      <h3>来源拆解</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>来源</th>
+            <th>作用</th>
+            <th>数值</th>
+          </tr>
+        </thead>
+        <tbody id="sourceTable"></tbody>
+      </table>
+
+      <div class="note" id="note"></div>
+    </div>
+  </div>
+
+  <script>
+    /*
+      火希茜班专用版说明：
+      - 玛薇卡输入“裸面板攻击力”：不进战斗、不吃班尼特、双火、宗室、讨龙、希诺宁、茜特菈莉时角色详情页显示的攻击力。
+      - 班尼特、双火、宗室、讨龙、希诺宁C2、专武被动等作为外部攻击/双暴拐追加。
+      - 希诺宁默认使用磐岩4件：火结晶后火伤+35%。
+      - 茜特菈莉默认使用烬城/勇者4件：火伤+40%。
+      - C3/C5自动修正实际技能等级；锁定的高命效果低命会灰掉且不计入。
+    */
+
+    const SUBSTAT = {
+      atkPct: 4.95,
+      em: 19.8,
+      critRate: 3.3,
+      critDmg: 6.6
+    };
+
+    // Genshin通用天赋成长比例；班尼特Q表也用相同成长列。
+    const TALENT_SCALE = {
+      1: 0.5555555556,
+      2: 0.5972222222,
+      3: 0.6388888889,
+      4: 0.6944444444,
+      5: 0.7361111111,
+      6: 0.7777777778,
+      7: 0.8333333333,
+      8: 0.8888888889,
+      9: 0.9444444444,
+      10: 1.0,
+      11: 1.0555555556,
+      12: 1.1111111111,
+      13: 1.1805555556,
+      14: 1.25,
+      15: 1.3229166667
+    };
+
+    // 玛薇卡Q：以10级 800.6% / 2.9%为基准；C3后按实际等级查表。
+    // 如你有更精确数据，可直接改这里的两个10级基准。
+    const MAV_Q_LEVEL10_BASE_MULT = 800.6;
+    const MAV_Q_LEVEL10_FS_MULT = 2.9;
+
+    // 班尼特Q：Fandom表10级100.8%，13级119%，14级126%。
+    const BEN_Q_RATIO_TABLE = {
+      1: 56,
+      2: 60.2,
+      3: 64.4,
+      4: 70,
+      5: 74.2,
+      6: 78.4,
+      7: 84,
+      8: 89.6,
+      9: 95.2,
+      10: 100.8,
+      11: 106.4,
+      12: 112,
+      13: 119,
+      14: 126,
+      15: 133.35
+    };
+
+    const state = {
+      mavuika: 0,
+      bennett: 0,
+      xilonen: 0,
+      citlali: 0
+    };
+
+    function setCons(name, n) {
+      state[name] = n;
+
+      const map = {
+        mavuika: "mavuikaButtons",
+        bennett: "bennettButtons",
+        xilonen: "xilonenButtons",
+        citlali: "citlaliButtons"
+      };
+
+      document.querySelectorAll("#" + map[name] + " .small-btn").forEach((btn, index) => {
+        btn.classList.toggle("active", index === n);
+      });
+
+      updateLocks();
+      calculate();
+    }
+
+    function updateLocks() {
+      document.querySelectorAll("[data-role='lock']").forEach(row => {
+        const character = row.dataset.character;
+        const need = Number(row.dataset.cons);
+        const locked = state[character] < need;
+        row.classList.toggle("locked", locked);
+
+        const input = row.querySelector("input, select");
+        if (input) {
+          input.disabled = locked;
+        }
+      });
+    }
+
+    function num(id) {
+      const v = document.getElementById(id).value;
+      if (v === "") return 0;
+      return Number(v);
+    }
+
+    function val(id) {
+      return document.getElementById(id).value;
+    }
+
+    function on(id) {
+      const el = document.getElementById(id);
+      return el && !el.disabled && el.checked;
+    }
+
+    function fmt(n) {
+      return Math.round(n).toLocaleString();
+    }
+
+    function fmt1(n) {
+      return Number(n).toFixed(1);
+    }
+
+    function fmt2(n) {
+      return Number(n).toFixed(4);
+    }
+
+    function pct(n) {
+      return (n * 100).toFixed(2) + "%";
+    }
+
+    function clamp(x, min, max) {
+      return Math.max(min, Math.min(max, x));
+    }
+
+    function talentScale(level) {
+      const lv = clamp(Math.round(level), 1, 15);
+      return TALENT_SCALE[lv] ?? TALENT_SCALE[10];
+    }
+
+    function effectiveTalentLevel(baseLevel, extra) {
+      return clamp(Math.round(baseLevel) + extra, 1, 15);
+    }
+
+    function mavuikaQBaseMultiplier(level) {
+      return MAV_Q_LEVEL10_BASE_MULT * talentScale(level);
+    }
+
+    function mavuikaFSMultiplier(level) {
+      return MAV_Q_LEVEL10_FS_MULT * talentScale(level);
+    }
+
+    function bennettQRatio(level) {
+      const lv = clamp(Math.round(level), 1, 15);
+      return BEN_Q_RATIO_TABLE[lv] ?? BEN_Q_RATIO_TABLE[10];
+    }
+
+    function refreshAutoTalentFields(c) {
+      const mavExtra = c.cons.mavuika >= 3 ? 3 : 0;
+      const mavEff = effectiveTalentLevel(c.mavQLevel, mavExtra);
+      document.getElementById("mavQEffectiveLevel").value = mavEff;
+      document.getElementById("mavQBaseMult").value = mavuikaQBaseMultiplier(mavEff).toFixed(1);
+      document.getElementById("mavFSMult").value = mavuikaFSMultiplier(mavEff).toFixed(3);
+
+      const benExtra = c.cons.bennett >= 5 ? 3 : 0;
+      const benEff = effectiveTalentLevel(c.benQLevel, benExtra);
+      document.getElementById("benQEffectiveLevel").value = benEff;
+      document.getElementById("benQRatio").value = bennettQRatio(benEff).toFixed(1);
+    }
+
+    function readConfig() {
+      const c = {
+        cons: {
+          mavuika: state.mavuika,
+          bennett: state.bennett,
+          xilonen: state.xilonen,
+          citlali: state.citlali
+        },
+
+        mavLevel: num("mavLevel"),
+        mavCharBaseAtk: num("mavCharBaseAtk"),
+        mavWeaponBaseAtk: num("mavWeaponBaseAtk"),
+        mavSigActive: on("mavSigActive"),
+        mavPanelAtk: num("mavPanelAtk"),
+        mavEM: num("mavEM"),
+        mavCritRate: num("mavCritRate"),
+        mavCritDmg: num("mavCritDmg"),
+        mavSelfDmg: num("mavSelfDmg"),
+
+        mavQLevel: num("mavQLevel"),
+        mavFS: num("mavFS"),
+        mavC2Mult: num("mavC2Mult"),
+        mavOtherBaseDmg: num("mavOtherBaseDmg"),
+
+        mavC1Atk: on("mavC1Atk"),
+        mavC2BaseAtk: on("mavC2BaseAtk"),
+        mavC2Extra: on("mavC2Extra"),
+        mavC4A4: on("mavC4A4"),
+        mavC6Def: on("mavC6Def"),
+        mavA1AtkPct: num("mavA1AtkPct"),
+        mavA4Active: on("mavA4Active"),
+        mavA4Elapsed: num("mavA4Elapsed"),
+        obsidian2: on("obsidian2"),
+        obsidian4: on("obsidian4"),
+
+        benActive: on("benActive"),
+        benC1Active: on("benC1Active"),
+        benC6Active: on("benC6Active"),
+        benQLevel: num("benQLevel"),
+        benCharBaseAtk: num("benCharBaseAtk"),
+        benWeaponBaseAtk: num("benWeaponBaseAtk"),
+
+        pyroResonance: on("pyroResonance"),
+        noblesse: on("noblesse"),
+        otherFlatAtk: num("otherFlatAtk"),
+        otherAtkPct: num("otherAtkPct"),
+
+        xiloActive: on("xiloActive"),
+        xiloC2Active: on("xiloC2Active"),
+        petraActive: on("petraActive"),
+        xiloResShred: num("xiloResShred"),
+        xiloC2AtkPct: num("xiloC2AtkPct"),
+        petraDmg: num("petraDmg"),
+        xiloOtherDmg: num("xiloOtherDmg"),
+
+        citActive: on("citActive"),
+        citC1Active: on("citC1Active"),
+        citC2Active: on("citC2Active"),
+        ttdsActive: on("ttdsActive"),
+        scrollActive: on("scrollActive"),
+        citEM: num("citEM"),
+        citResShred: num("citResShred"),
+        citC2ResShred: num("citC2ResShred"),
+        citC2EMBuff: num("citC2EMBuff"),
+        citC1EMScale: num("citC1EMScale"),
+        scrollDmg: num("scrollDmg"),
+        ttdsRefine: Number(val("ttdsRefine")),
+
+        reaction: val("reaction"),
+        reactionBonus: num("reactionBonus"),
+        enemyLevel: num("enemyLevel"),
+        enemyRes: num("enemyRes"),
+        otherDefReduction: num("otherDefReduction"),
+        defIgnore: num("defIgnore"),
+        targetDmgReduction: num("targetDmgReduction"),
+        manualDef: on("manualDef"),
+        manualDefMult: num("manualDefMult")
+      };
+
+      refreshAutoTalentFields(c);
+
+      c.mavQEffectiveLevel = num("mavQEffectiveLevel");
+      c.mavQBaseMult = num("mavQBaseMult");
+      c.mavFSMult = num("mavFSMult");
+      c.benQEffectiveLevel = num("benQEffectiveLevel");
+      c.benQRatio = num("benQRatio");
+
+      return c;
+    }
+
+    function resistanceMultiplier(resPercent) {
+      const res = resPercent / 100;
+      if (res < 0) return 1 - res / 2;
+      if (res < 0.75) return 1 - res;
+      return 1 / (4 * res + 1);
+    }
+
+    function defenseMultiplier(charLevel, enemyLevel, defReductionPercent, defIgnorePercent) {
+      const charPart = charLevel + 100;
+      const defReduction = clamp(defReductionPercent / 100, 0, 0.9);
+      const defIgnore = clamp(defIgnorePercent / 100, 0, 1);
+      const enemyPart = (enemyLevel + 100) * (1 - defReduction) * (1 - defIgnore);
+      return charPart / (charPart + enemyPart);
+    }
+
+    function critMultiplier(crPercent, cdPercent, mode) {
+      const cr = clamp(crPercent / 100, 0, 1);
+      const cd = cdPercent / 100;
+      if (mode === "crit") return 1 + cd;
+      if (mode === "nonCrit") return 1;
+      return 1 + cr * cd;
+    }
+
+    function reactionMultiplier(type, em, reactionBonusPercent) {
+      if (type === "none") return 1;
+
+      let base = 1;
+      if (type === "melt") base = 2.0;
+      if (type === "vape") base = 1.5;
+
+      const emBonus = 2.78 * em / (em + 1400);
+      const reactionBonus = reactionBonusPercent / 100;
+
+      return base * (1 + emBonus + reactionBonus);
+    }
+
+    function calcMavuikaBaseAtk(c) {
+      let baseAtk = c.mavCharBaseAtk + c.mavWeaponBaseAtk;
+
+      if (c.cons.mavuika >= 2 && c.mavC2BaseAtk) {
+        baseAtk += 200;
+      }
+
+      return baseAtk;
+    }
+
+    function calcA4Bonus(c) {
+      if (!c.mavA4Active) return 0;
+
+      const initial = Math.min(c.mavFS * 0.2, 40);
+
+      if (c.cons.mavuika >= 4 && c.mavC4A4) {
+        return initial + 10;
+      }
+
+      const remain = Math.max(0, 1 - c.mavA4Elapsed / 20);
+      return initial * remain;
+    }
+
+    function collectBuffs(c) {
+      const baseAtk = calcMavuikaBaseAtk(c);
+
+      let atkPctBuff = 0;
+      let flatAtkBuff = 0;
+      let emBuff = 0;
+      let critRateBuff = 0;
+      let critDmgBuff = 0;
+      let dmgBonus = 0;
+      let resShred = 0;
+      let defReduction = c.otherDefReduction;
+      let additiveBaseDmg = c.mavOtherBaseDmg;
+
+      const sources = [];
+
+      function addSource(name, type, value) {
+        sources.push({ name, type, value });
+      }
+
+      dmgBonus += c.mavSelfDmg;
+      addSource("玛薇卡裸面板", "火伤/自身增伤", c.mavSelfDmg + "%");
+
+      if (c.mavSigActive) {
+        atkPctBuff += 49;
+        critDmgBuff += 35;
+        addSource("焚曜千阳", "攻击%", "49%");
+        addSource("焚曜千阳", "暴击伤害", "35%");
+      }
+
+      if (c.cons.mavuika >= 1 && c.mavC1Atk) {
+        atkPctBuff += 40;
+        addSource("玛薇卡C1", "攻击%", "40%");
+      }
+
+      if (c.mavA1AtkPct > 0) {
+        atkPctBuff += c.mavA1AtkPct;
+        addSource("玛薇卡A1", "攻击%", c.mavA1AtkPct + "%");
+      }
+
+      const a4 = calcA4Bonus(c);
+      if (a4 > 0) {
+        dmgBonus += a4;
+        addSource("玛薇卡A4", "增伤", a4.toFixed(1) + "%");
+      }
+
+      if (c.obsidian2) {
+        dmgBonus += 15;
+        addSource("黑曜2件", "增伤", "15%");
+      }
+
+      if (c.obsidian4) {
+        critRateBuff += 40;
+        addSource("黑曜4件", "暴击率", "40%");
+      }
+
+      if (c.cons.mavuika >= 6 && c.mavC6Def) {
+        defReduction += 20;
+        addSource("玛薇卡C6", "防御降低", "20%");
+      }
+
+      if (c.benActive) {
+        const benBaseAtk = c.benCharBaseAtk + c.benWeaponBaseAtk;
+        let benFlat = benBaseAtk * c.benQRatio / 100;
+
+        if (c.cons.bennett >= 1 && c.benC1Active) {
+          benFlat += benBaseAtk * 0.2;
+          addSource("班尼特C1", "额外固定攻击", fmt(benBaseAtk * 0.2));
+        }
+
+        flatAtkBuff += benFlat;
+        addSource("班尼特Q Lv." + c.benQEffectiveLevel, "固定攻击", fmt(benFlat));
+
+        if (c.cons.bennett >= 6 && c.benC6Active) {
+          dmgBonus += 15;
+          addSource("班尼特C6", "火伤", "15%");
+        }
+      }
+
+      if (c.pyroResonance) {
+        atkPctBuff += 25;
+        addSource("双火共鸣", "攻击%", "25%");
+      }
+
+      if (c.noblesse) {
+        atkPctBuff += 20;
+        addSource("宗室4件", "攻击%", "20%");
+      }
+
+      if (c.otherAtkPct !== 0) {
+        atkPctBuff += c.otherAtkPct;
+        addSource("其他", "攻击%", c.otherAtkPct + "%");
+      }
+
+      if (c.otherFlatAtk !== 0) {
+        flatAtkBuff += c.otherFlatAtk;
+        addSource("其他", "固定攻击", c.otherFlatAtk);
+      }
+
+      if (c.xiloActive) {
+        resShred += c.xiloResShred;
+        addSource("希诺宁E", "火抗降低", c.xiloResShred + "%");
+      }
+
+      if (c.cons.xilonen >= 2 && c.xiloC2Active) {
+        atkPctBuff += c.xiloC2AtkPct;
+        addSource("希诺宁C2", "攻击%", c.xiloC2AtkPct + "%");
+      }
+
+      if (c.petraActive) {
+        dmgBonus += c.petraDmg;
+        addSource("希诺宁磐岩4", "火伤", c.petraDmg + "%");
+      }
+
+      if (c.xiloOtherDmg !== 0) {
+        dmgBonus += c.xiloOtherDmg;
+        addSource("希诺宁武器/其他", "增伤", c.xiloOtherDmg + "%");
+      }
+
+      if (c.citActive) {
+        resShred += c.citResShred;
+        addSource("茜特菈莉天赋", "火抗降低", c.citResShred + "%");
+      }
+
+      if (c.cons.citlali >= 1 && c.citC1Active) {
+        const citC1Dmg = c.citEM * c.citC1EMScale;
+        additiveBaseDmg += citC1Dmg;
+        addSource("茜特菈莉C1", "基础伤害加成", fmt(citC1Dmg));
+      }
+
+      if (c.cons.citlali >= 2 && c.citC2Active) {
+        emBuff += c.citC2EMBuff;
+        resShred += c.citC2ResShred;
+        addSource("茜特菈莉C2", "精通", c.citC2EMBuff);
+        addSource("茜特菈莉C2", "额外火抗降低", c.citC2ResShred + "%");
+      }
+
+      if (c.ttdsActive) {
+        atkPctBuff += c.ttdsRefine;
+        addSource("讨龙", "攻击%", c.ttdsRefine + "%");
+      }
+
+      if (c.scrollActive) {
+        dmgBonus += c.scrollDmg;
+        addSource("茜特菈莉烬城4", "火伤", c.scrollDmg + "%");
+      }
+
+      return {
+        baseAtk,
+        atkPctBuff,
+        flatAtkBuff,
+        emBuff,
+        critRateBuff,
+        critDmgBuff,
+        dmgBonus,
+        resShred,
+        defReduction,
+        additiveBaseDmg,
+        sources
+      };
+    }
+
+    function buildPanel(c) {
+      const buffs = collectBuffs(c);
+
+      const finalAtk =
+        c.mavPanelAtk +
+        buffs.baseAtk * buffs.atkPctBuff / 100 +
+        buffs.flatAtkBuff;
+
+      const finalEM =
+        c.mavEM +
+        buffs.emBuff;
+
+      const finalCR =
+        c.mavCritRate +
+        buffs.critRateBuff;
+
+      const finalCD =
+        c.mavCritDmg +
+        buffs.critDmgBuff;
+
+      const qBaseDmg =
+        finalAtk * c.mavQBaseMult / 100;
+
+      const fsDmg =
+        finalAtk * c.mavFS * c.mavFSMult / 100;
+
+      const c2Dmg =
+        c.cons.mavuika >= 2 && c.mavC2Extra
+          ? finalAtk * c.mavC2Mult / 100
+          : 0;
+
+      const citC1Dmg =
+        c.cons.citlali >= 1 && c.citC1Active
+          ? c.citEM * c.citC1EMScale
+          : 0;
+
+      const totalBaseDmg =
+        qBaseDmg +
+        fsDmg +
+        c2Dmg +
+        citC1Dmg +
+        c.mavOtherBaseDmg;
+
+      const finalRes =
+        c.enemyRes - buffs.resShred;
+
+      const resMult =
+        resistanceMultiplier(finalRes);
+
+      const defMult =
+        c.manualDef
+          ? c.manualDefMult
+          : defenseMultiplier(c.mavLevel, c.enemyLevel, buffs.defReduction, c.defIgnore);
+
+      const reactionMult =
+        reactionMultiplier(c.reaction, finalEM, c.reactionBonus);
+
+      const dmgBonusMult =
+        1 + buffs.dmgBonus / 100 - c.targetDmgReduction / 100;
+
+      return {
+        baseAtk: buffs.baseAtk,
+        finalAtk,
+        finalEM,
+        finalCR,
+        finalCD,
+        atkPctBuff: buffs.atkPctBuff,
+        flatAtkBuff: buffs.flatAtkBuff,
+        dmgBonus: buffs.dmgBonus,
+        resShred: buffs.resShred,
+        finalRes,
+        resMult,
+        defReduction: buffs.defReduction,
+        defMult,
+        reactionMult,
+        qBaseDmg,
+        fsDmg,
+        c2Dmg,
+        citC1Dmg,
+        totalBaseDmg,
+        dmgBonusMult,
+        sources: buffs.sources
+      };
+    }
+
+    function calcDamage(p, mode) {
+      return (
+        p.totalBaseDmg *
+        p.dmgBonusMult *
+        critMultiplier(p.finalCR, p.finalCD, mode) *
+        p.defMult *
+        p.resMult *
+        p.reactionMult
+      );
+    }
+
+    function clone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function calcExpected(c) {
+      return calcDamage(buildPanel(c), "expected");
+    }
+
+    function calcMarginal(c) {
+      const d0 = calcExpected(c);
+
+      if (d0 <= 0 || !Number.isFinite(d0)) {
+        return [];
+      }
+
+      const cases = [];
+
+      const atkCase = clone(c);
+      atkCase.otherAtkPct += SUBSTAT.atkPct;
+      cases.push({
+        name: "攻击%",
+        add: "+" + SUBSTAT.atkPct + "%",
+        gain: calcExpected(atkCase) / d0 - 1
+      });
+
+      const emCase = clone(c);
+      emCase.mavEM += SUBSTAT.em;
+      cases.push({
+        name: "元素精通",
+        add: "+" + SUBSTAT.em,
+        gain: calcExpected(emCase) / d0 - 1
+      });
+
+      const crCase = clone(c);
+      crCase.mavCritRate += SUBSTAT.critRate;
+      cases.push({
+        name: "暴击率",
+        add: "+" + SUBSTAT.critRate + "%",
+        gain: calcExpected(crCase) / d0 - 1
+      });
+
+      const cdCase = clone(c);
+      cdCase.mavCritDmg += SUBSTAT.critDmg;
+      cases.push({
+        name: "暴击伤害",
+        add: "+" + SUBSTAT.critDmg + "%",
+        gain: calcExpected(cdCase) / d0 - 1
+      });
+
+      return cases.sort((a, b) => b.gain - a.gain);
+    }
+
+    function calculate() {
+      updateLocks();
+
+      const c = readConfig();
+      const p = buildPanel(c);
+
+      const expected = calcDamage(p, "expected");
+      const crit = calcDamage(p, "crit");
+      const nonCrit = calcDamage(p, "nonCrit");
+
+      document.getElementById("consSummary").textContent =
+        "玛C" + c.cons.mavuika +
+        " / 班C" + c.cons.bennett +
+        " / 希C" + c.cons.xilonen +
+        " / 茜C" + c.cons.citlali;
+
+      document.getElementById("outBaseAtk").textContent = fmt(p.baseAtk);
+      document.getElementById("outAtk").textContent = fmt(p.finalAtk);
+      document.getElementById("outEM").textContent = fmt(p.finalEM);
+      document.getElementById("outCR").textContent = fmt1(p.finalCR) + "%";
+      document.getElementById("outCD").textContent = fmt1(p.finalCD) + "%";
+
+      document.getElementById("outAtkPctBuff").textContent = fmt1(p.atkPctBuff) + "%";
+      document.getElementById("outFlatAtkBuff").textContent = fmt(p.flatAtkBuff);
+      document.getElementById("outDmgBonus").textContent = fmt1(p.dmgBonus) + "%";
+      document.getElementById("outResShred").textContent = fmt1(p.resShred) + "%";
+      document.getElementById("outFinalRes").textContent = fmt1(p.finalRes) + "%";
+      document.getElementById("outResMult").textContent = fmt2(p.resMult);
+      document.getElementById("outDefReduction").textContent = fmt1(p.defReduction) + "%";
+      document.getElementById("outDefMult").textContent = fmt2(p.defMult);
+      document.getElementById("outReactionMult").textContent = fmt2(p.reactionMult);
+
+      document.getElementById("outQBaseDmg").textContent = fmt(p.qBaseDmg);
+      document.getElementById("outFSDmg").textContent = fmt(p.fsDmg);
+      document.getElementById("outC2Dmg").textContent = fmt(p.c2Dmg);
+      document.getElementById("outCitC1Dmg").textContent = fmt(p.citC1Dmg);
+      document.getElementById("outBaseDmg").textContent = fmt(p.totalBaseDmg);
+
+      document.getElementById("outExpected").textContent = fmt(expected);
+      document.getElementById("outCrit").textContent = fmt(crit);
+      document.getElementById("outNonCrit").textContent = fmt(nonCrit);
+
+      const noCritNoReaction =
+        p.totalBaseDmg *
+        p.dmgBonusMult *
+        p.resMult *
+        p.defMult;
+
+      document.getElementById("outProcess").innerHTML =
+        noCritNoReaction.toFixed(2) + " = " +
+        "(" +
+        p.finalAtk.toFixed(2) + "攻击 × " + (c.mavQBaseMult / 100).toFixed(3) + "Q倍率 + " +
+        p.fsDmg.toFixed(3) + "战意基础伤害 + " +
+        p.c2Dmg.toFixed(3) + "玛C2基础伤害 + " +
+        p.citC1Dmg.toFixed(3) + "茜C1基础伤害 + " +
+        c.mavOtherBaseDmg.toFixed(3) + "其他基础伤害" +
+        ") × " +
+        p.dmgBonusMult.toFixed(3) + "增伤 × " +
+        p.resMult.toFixed(3) + "抗性 × " +
+        p.defMult.toFixed(3) + "防御。<br>" +
+        "完整期望伤害再乘：暴击期望 × 反应乘区。";
+
+      const marginal = calcMarginal(c);
+      const marginalTable = document.getElementById("marginalTable");
+      marginalTable.innerHTML = "";
+
+      if (marginal.length === 0) {
+        document.getElementById("note").innerHTML =
+          "请先填写玛薇卡裸面板攻击、精通、暴击率、暴击伤害、火伤。";
+      } else {
+        for (const r of marginal) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${r.name}</td>
+            <td>${r.add}</td>
+            <td>${pct(r.gain)}</td>
+          `;
+          marginalTable.appendChild(tr);
+        }
+
+        document.getElementById("note").innerHTML =
+          "当前首刀期望伤害下，最优先补：" + marginal[0].name +
+          "。本工具只适配火希茜班首Q，不模拟完整时间轴。";
+      }
+
+      const sourceTable = document.getElementById("sourceTable");
+      sourceTable.innerHTML = "";
+
+      for (const s of p.sources) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${s.name}</td>
+          <td>${s.type}</td>
+          <td>${s.value}</td>
+        `;
+        sourceTable.appendChild(tr);
+      }
+    }
+
+    updateLocks();
+    calculate();
+
+    document.querySelectorAll("input, select").forEach(el => {
+      el.addEventListener("input", calculate);
+      el.addEventListener("change", calculate);
+    });
+  </script>
+</body>
+</html>
