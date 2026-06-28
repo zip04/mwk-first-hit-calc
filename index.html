@@ -119,14 +119,31 @@
       border: 0;
       border-radius: 8px;
       padding: 8px 10px;
-      background: var(--main);
+      background: linear-gradient(180deg, #e8590c 0%, var(--main) 100%);
       color: white;
       cursor: pointer;
       font-size: 14px;
       font-family: inherit;
+      box-shadow: 0 2px 5px rgba(217,72,15,0.18);
+      transition: transform 0.08s ease, box-shadow 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+      user-select: none;
     }
 
-    button:hover { background: var(--main-dark); }
+    button:hover {
+      background: linear-gradient(180deg, #f76707 0%, var(--main-dark) 100%);
+      box-shadow: 0 4px 10px rgba(217,72,15,0.25);
+    }
+
+    button:active {
+      transform: translateY(1px) scale(0.985);
+      box-shadow: 0 1px 3px rgba(217,72,15,0.18);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      box-shadow: none;
+    }
 
     .button-row {
       display: flex;
@@ -138,16 +155,67 @@
     .small-btn {
       width: auto;
       padding: 5px 9px;
-      background: #e9ecef;
+      background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
       color: #222;
+      border: 1px solid #dee2e6;
       border-radius: 6px;
       font-size: 13px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
 
-    .small-btn:hover { background: #dee2e6; }
-    .small-btn.active { background: var(--main); color: #fff; }
-    .small-btn.danger { background: #f1f3f5; color: #b02a37; }
-    .small-btn.danger:hover { background: #ffe3e3; }
+    .small-btn:hover {
+      background: linear-gradient(180deg, #fff4e6 0%, #ffe8cc 100%);
+      border-color: rgba(217,72,15,0.35);
+    }
+
+    .small-btn:active {
+      transform: translateY(1px) scale(0.985);
+    }
+
+    .small-btn.active {
+      background: linear-gradient(180deg, #f76707 0%, var(--main) 100%);
+      border-color: var(--main);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(217,72,15,0.28);
+    }
+
+    .small-btn.danger {
+      background: linear-gradient(180deg, #fff5f5 0%, #f1f3f5 100%);
+      color: #b02a37;
+      border-color: #f1c0c0;
+    }
+
+    .small-btn.danger:hover {
+      background: linear-gradient(180deg, #fff0f0 0%, #ffe3e3 100%);
+      border-color: #ff8787;
+    }
+
+    .action-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid rgba(217,72,15,0.22);
+      border-radius: 10px;
+      background: linear-gradient(180deg, #fff9f3 0%, #fff4e6 100%);
+    }
+
+    .axis-edit-main {
+      padding: 8px 13px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      border-color: var(--main);
+      background: linear-gradient(180deg, #ff7a1a 0%, var(--main) 100%);
+      box-shadow: 0 3px 10px rgba(217,72,15,0.25);
+    }
+
+    .axis-edit-main:hover {
+      background: linear-gradient(180deg, #ff922b 0%, var(--main-dark) 100%);
+      box-shadow: 0 5px 14px rgba(217,72,15,0.32);
+    }
 
     .box {
       margin: 10px 0 12px;
@@ -157,9 +225,16 @@
       background: var(--soft);
     }
 
-    .locked { opacity: 0.42; }
+    .locked {
+      opacity: 0.42;
+      filter: grayscale(0.2);
+    }
     .locked input,
-    .locked select { pointer-events: none; }
+    .locked select {
+      pointer-events: none;
+      background: #f1f3f5;
+      color: #777;
+    }
 
     .note {
       color: var(--muted);
@@ -521,7 +596,7 @@
 
       <h3>希诺宁乘区</h3>
       <label>技能火抗降低% <input id="xiloResShred" type="number" step="0.1" value="36"></label>
-      <label>C2火角色攻击% <input id="xiloC2AtkPct" type="number" step="0.1" value="45"></label>
+      <label data-role="lock" data-character="xilonen" data-cons="2">C2火角色攻击% <input id="xiloC2AtkPct" type="number" step="0.1" value="45"></label>
       <label>磐岩套火增伤% <input id="petraDmg" type="number" step="0.1" value="35"></label>
       <label>武器/其他增伤% <input id="xiloOtherDmg" type="number" step="0.1" value="0"></label>
     </div>
@@ -550,11 +625,11 @@
       <h3>茜特菈莉乘区</h3>
       <label>茜特菈莉精通 <input id="citEM" type="number" value="800"></label>
       <label>基础火抗降低% <input id="citResShred" type="number" step="0.1" value="20"></label>
-      <label>C2额外火抗降低% <input id="citC2ResShred" type="number" step="0.1" value="20"></label>
-      <label>C2给玛薇卡精通 <input id="citC2EMBuff" type="number" value="250"></label>
-      <label>C1星刃倍率：茜EM× <input id="citC1EMScale" type="number" step="0.1" value="2"></label>
-      <label>首刀计入茜C1 <input id="citC1FirstHit" type="checkbox" checked></label>
-      <label>全轴茜C1次数 <input id="citC1AxisHits" type="number" min="0" step="1" value="0"></label>
+      <label data-role="lock" data-character="citlali" data-cons="2">C2额外火抗降低% <input id="citC2ResShred" type="number" step="0.1" value="20"></label>
+      <label data-role="lock" data-character="citlali" data-cons="2">C2给玛薇卡精通 <input id="citC2EMBuff" type="number" value="250"></label>
+      <label data-role="lock" data-character="citlali" data-cons="1">C1星刃倍率：茜EM× <input id="citC1EMScale" type="number" step="0.1" value="2"></label>
+      <label data-role="lock" data-character="citlali" data-cons="1">首刀计入茜C1 <input id="citC1FirstHit" type="checkbox" checked></label>
+      <label data-role="lock" data-character="citlali" data-cons="1">全轴茜C1次数 <input id="citC1AxisHits" type="number" min="0" step="1" value="0"></label>
       <label>勇者/烬城火伤% <input id="scrollDmg" type="number" step="0.1" value="40"></label>
       <label>讨龙精炼 <select id="ttdsRefine">
         <option value="24">R1 24%</option>
@@ -646,9 +721,9 @@
       </div>
       <div id="axisButtons" class="axis-button-panel"></div>
       <div class="note" id="axisExceptionSummary">当前异常：无，默认全轴吃满短拐。</div>
-      <div class="button-row" style="margin-top:10px;">
+      <div class="action-toolbar">
         <button type="button" class="small-btn" onclick="resetAxisBuffSimulation()">恢复全轴吃满</button>
-        <button type="button" class="small-btn" onclick="toggleAxisEditor()">编辑动作序列</button>
+        <button type="button" class="small-btn axis-edit-main" onclick="toggleAxisEditor()">编辑动作序列 / 长表格</button>
         <button type="button" class="small-btn" onclick="addAxisRow()">新增一段</button>
       </div>
       <div id="axisEditorBox" class="axis-editor-box">
@@ -917,8 +992,9 @@
         const need = Number(row.dataset.cons);
         const locked = state[character] < need;
         row.classList.toggle("locked", locked);
-        const input = row.querySelector("input, select");
-        if (input) input.disabled = locked;
+        row.querySelectorAll("input, select").forEach(input => {
+          input.disabled = locked;
+        });
       });
     }
 
