@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>火希茜班·玛薇卡首刀与全轴计算器 v5</title>
+  <title>火希茜班·玛薇卡首刀与全轴计算器 v6</title>
   <style>
     :root {
       --main: #d9480f;
@@ -624,6 +624,38 @@
         <thead><tr><th>词条</th><th>等价增加</th><th>期望提升</th></tr></thead>
         <tbody id="axisMarginalTable"></tbody>
       </table>
+
+      <h3>全轴最优分配</h3>
+      <div class="box">
+        <div class="note">
+          这里按“总有效词条数不变”枚举攻击%、精通、暴击率、暴击伤害的理论最优分配。暴击率超过100%的部分会自动按0收益处理。
+        </div>
+        <div class="summary-grid">
+          <span>当前攻击%词条数</span><input id="optAtkRolls" type="number" step="0.1" value="4.0">
+          <span>当前精通词条数</span><input id="optEMRolls" type="number" step="0.1" value="4.1">
+          <span>当前暴击率词条数</span><input id="optCRRolls" type="number" step="0.1" value="13.1">
+          <span>当前暴击伤害词条数</span><input id="optCDRolls" type="number" step="0.1" value="14.6">
+          <span>参与优化总词条数</span><input id="optTotalRolls" type="number" step="1" value="36">
+        </div>
+        <div class="button-row" style="margin-top:10px;">
+          <button type="button" class="small-btn" onclick="syncOptimizerTotalRolls()">用当前四项合计</button>
+          <button type="button" class="small-btn active" onclick="runAxisOptimizer()">计算全轴最优分配</button>
+        </div>
+        <div class="note">
+          词条数可以填小数，表示按圣遗物面板反推的近似值；枚举时总词条数会取整数。攻击%按角色白值+武器白值换算，不把C2基础攻击当作圣遗物攻击%基准。
+        </div>
+      </div>
+      <div class="summary-grid" id="optimizerSummary" style="display:none; margin-top:10px;">
+        <span>当前全轴期望</span><strong id="optCurrentDmg">-</strong>
+        <span>最优全轴期望</span><strong id="optBestDmg">-</strong>
+        <span>理论提升</span><strong id="optGain">-</strong>
+        <span>最优裸面板</span><strong id="optBestPanel">-</strong>
+      </div>
+      <table id="optimizerTable" style="display:none;">
+        <thead><tr><th>词条</th><th>当前估算</th><th>最优分配</th><th>建议变化</th></tr></thead>
+        <tbody id="optimizerTableBody"></tbody>
+      </table>
+      <div class="note" id="optimizerNote"></div>
 
       <h3>逐段伤害</h3>
       <div class="axis-table-wrap">
@@ -1585,7 +1617,7 @@
       document.getElementById("axisVsFirst").textContent = first.expected > 0 ? (axis.expected / first.expected).toFixed(3) + " 倍" : "-";
       document.getElementById("axisProcess").innerHTML =
         "全轴期望 = 常规轴 " + fmt(axis.normalExpected) + " + C6天火 " + fmt(axis.c6Expected) + "。" +
-        "默认融化段只包含 Z、Q、Z、P、P、P；Q战意追加逐段处理：Z1无，Q与Q后重击有，s/P无。";
+        "默认融化段只包含 Z、Q、Z、P、P、P；Q战意追加逐段处理：Z1无，Q与Q后重击循环、重击终结P有，s无。";
 
       renderMarginal("axisMarginalTable", calcMarginal(c, "axis"));
       renderAxisBreakdown(axis.rows);
@@ -1601,6 +1633,116 @@
         tr.innerHTML = `<td>${r.name}</td><td>${r.add}</td><td>${pct(r.gain)}</td>`;
         tbody.appendChild(tr);
       });
+    }
+
+    function syncOptimizerTotalRolls() {
+      const total = num("optAtkRolls") + num("optEMRolls") + num("optCRRolls") + num("optCDRolls");
+      const el = document.getElementById("optTotalRolls");
+      if (el) el.value = Math.max(0, Math.round(total));
+    }
+
+    function optimizerCurrentRolls() {
+      return {
+        atk: Math.max(0, num("optAtkRolls")),
+        em: Math.max(0, num("optEMRolls")),
+        cr: Math.max(0, num("optCRRolls")),
+        cd: Math.max(0, num("optCDRolls")),
+        total: Math.max(0, Math.round(num("optTotalRolls")))
+      };
+    }
+
+    function artifactAtkRollValue(c) {
+      return (c.mavCharBaseAtk + c.mavWeaponBaseAtk) * SUBSTAT.atkPct / 100;
+    }
+
+    function buildOptimizerConfig(c, base, rolls) {
+      const next = clone(c);
+      next.mavPanelAtk = base.atk + artifactAtkRollValue(c) * rolls.atk;
+      next.mavEM = base.em + SUBSTAT.em * rolls.em;
+      next.mavCritRate = base.cr + SUBSTAT.critRate * rolls.cr;
+      next.mavCritDmg = base.cd + SUBSTAT.critDmg * rolls.cd;
+      return next;
+    }
+
+    function finalCritOverflow(c) {
+      const p = buildPanel(c);
+      return Math.max(0, p.finalCR - 100);
+    }
+
+    function runAxisOptimizer() {
+      const summary = document.getElementById("optimizerSummary");
+      const table = document.getElementById("optimizerTable");
+      const tbody = document.getElementById("optimizerTableBody");
+      const note = document.getElementById("optimizerNote");
+      if (!summary || !table || !tbody || !note) return;
+
+      const c = readConfig();
+      const curRolls = optimizerCurrentRolls();
+      if (!curRolls.total || curRolls.total < 0) {
+        note.textContent = "请先填写参与优化的总词条数。";
+        return;
+      }
+
+      const atkRoll = artifactAtkRollValue(c);
+      const base = {
+        atk: c.mavPanelAtk - atkRoll * curRolls.atk,
+        em: c.mavEM - SUBSTAT.em * curRolls.em,
+        cr: c.mavCritRate - SUBSTAT.critRate * curRolls.cr,
+        cd: c.mavCritDmg - SUBSTAT.critDmg * curRolls.cd
+      };
+
+      let best = null;
+      let checked = 0;
+      const N = curRolls.total;
+      for (let atk = 0; atk <= N; atk++) {
+        for (let em = 0; em <= N - atk; em++) {
+          for (let cr = 0; cr <= N - atk - em; cr++) {
+            const cd = N - atk - em - cr;
+            const rolls = { atk, em, cr, cd };
+            const testConfig = buildOptimizerConfig(c, base, rolls);
+            const dmg = calcAxis(testConfig).expected;
+            const overflow = finalCritOverflow(testConfig);
+            checked += 1;
+            if (!best || dmg > best.dmg + 1e-6 || (Math.abs(dmg - best.dmg) <= 1e-6 && overflow < best.overflow)) {
+              best = { rolls, dmg, overflow, config: testConfig, panel: buildPanel(testConfig) };
+            }
+          }
+        }
+      }
+
+      const currentDmg = calcAxis(c).expected;
+      const gain = currentDmg > 0 ? best.dmg / currentDmg - 1 : 0;
+      summary.style.display = "grid";
+      table.style.display = "table";
+      document.getElementById("optCurrentDmg").textContent = fmt(currentDmg);
+      document.getElementById("optBestDmg").textContent = fmt(best.dmg);
+      document.getElementById("optGain").textContent = pct(gain);
+      document.getElementById("optBestPanel").textContent =
+        "攻" + fmt(best.config.mavPanelAtk) + " / 精" + fmt(best.config.mavEM) + " / 暴率" + fmt1(best.config.mavCritRate) + "% / 暴伤" + fmt1(best.config.mavCritDmg) + "%";
+
+      function deltaText(now, target) {
+        const d = target - now;
+        const sign = d > 0 ? "+" : "";
+        return sign + d.toFixed(1);
+      }
+      const rows = [
+        ["攻击%", curRolls.atk, best.rolls.atk],
+        ["元素精通", curRolls.em, best.rolls.em],
+        ["暴击率", curRolls.cr, best.rolls.cr],
+        ["暴击伤害", curRolls.cd, best.rolls.cd]
+      ];
+      tbody.innerHTML = "";
+      rows.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${r[0]}</td><td>${Number(r[1]).toFixed(1)}</td><td>${Number(r[2]).toFixed(0)}</td><td>${deltaText(r[1], r[2])}</td>`;
+        tbody.appendChild(tr);
+      });
+
+      const finalCR = best.panel.finalCR;
+      const overflowText = finalCR > 100 ? "最优方案存在 " + fmt1(finalCR - 100) + "% 暴击率溢出；该溢出已经按0收益处理。" : "最优方案最终暴击率未超过100%。";
+      note.innerHTML =
+        "已枚举 " + checked.toLocaleString() + " 种分配。" + overflowText +
+        " 当前输入的词条数可为小数；最优分配使用整数词条，因此建议变化只表示理论方向，不等于某一件圣遗物必然可实现。";
     }
 
     function axisBuffText(buffs) {
