@@ -225,6 +225,38 @@
 
     .axis-table-wrap table { margin-top: 0; min-width: 760px; }
 
+    .axis-editor-box {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .axis-editor-box.show { display: block; }
+
+    .axis-editor-wrap table { min-width: 1100px; }
+
+    .axis-editor-wrap select,
+    .axis-editor-wrap input[type="number"],
+    .axis-editor-wrap input[type="text"] {
+      width: 94px;
+      font-size: 12px;
+      padding: 4px 5px;
+    }
+
+    .axis-editor-wrap input[type="text"] { width: 76px; }
+
+    .axis-editor-wrap .mini-btn {
+      width: auto;
+      margin: 1px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      background: #f1f3f5;
+      color: #222;
+    }
+
+    .axis-editor-wrap .mini-btn:hover { background: #e9ecef; }
+
+
     .pill {
       display: inline-block;
       padding: 2px 7px;
@@ -351,7 +383,7 @@
   </style>
 </head>
 <body>
-  <h1>火希茜班·玛薇卡 Q 首刀 + 六融全轴计算器 </h1>
+  <h1>火希茜班·玛薇卡 Q 首刀 + ZQZzzszPszPszP 全轴计算器 v7</h1>
 
   <div class="topbar">
     <div class="card">
@@ -367,14 +399,14 @@
 
     <div class="card">
       <h2>圣遗物/面板预设</h2>
-      <label>预设名 <input id="presetName" type="text" placeholder="如：融化套A"></label>
+      <label>预设名 <input id="presetName" type="text" placeholder="如：黑曜攻火暴A"></label>
       <label>选择预设 <select id="presetSelect"></select></label>
       <div class="button-row">
         <button type="button" class="small-btn" onclick="saveArtifactPreset()">保存当前面板</button>
         <button type="button" class="small-btn" onclick="loadArtifactPreset()">读取</button>
         <button type="button" class="small-btn danger" onclick="deleteArtifactPreset()">删除</button>
       </div>
-      <div class="note" id="presetStatus">保存内容：裸面板攻击、精通、暴击率、暴击伤害、火伤杯，以及黑曜2/4、专武触发开关。点击预设后再点击读取即可导入</div>
+      <div class="note" id="presetStatus">保存内容：裸面板攻击、精通、暴击率、暴击伤害、火伤/自身增伤，以及黑曜2/4、专武触发开关。</div>
     </div>
 
     <div class="card">
@@ -616,6 +648,21 @@
       <div class="note" id="axisExceptionSummary">当前异常：无，默认全轴吃满短拐。</div>
       <div class="button-row" style="margin-top:10px;">
         <button type="button" class="small-btn" onclick="resetAxisBuffSimulation()">恢复全轴吃满</button>
+        <button type="button" class="small-btn" onclick="toggleAxisEditor()">编辑动作序列</button>
+        <button type="button" class="small-btn" onclick="addAxisRow()">新增一段</button>
+      </div>
+      <div id="axisEditorBox" class="axis-editor-box">
+        <div class="note">编辑模式会显示完整长表格，适合新增、删除、换顺序或改倍率。平时可收起，只用上面的动作按钮弹框模拟掉拐。</div>
+        <div class="axis-table-wrap axis-editor-wrap">
+          <table id="axisEditorTable">
+            <thead>
+              <tr>
+                <th>#</th><th>启用</th><th>段名</th><th>类型</th><th>倍率%</th><th>Q战意</th><th>融化</th><th>班</th><th>宗</th><th>讨</th><th>磐</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="axisEditorBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -645,18 +692,18 @@
           这里按“总有效词条数不变”枚举攻击%、精通、暴击率、暴击伤害的理论最优分配。暴击率超过100%的部分会自动按0收益处理。
         </div>
         <div class="summary-grid">
-          <span>当前攻击%词条数</span><input id="optAtkRolls" type="number" step="0.1" value="4.0">
-          <span>当前精通词条数</span><input id="optEMRolls" type="number" step="0.1" value="4.1">
-          <span>当前暴击率词条数</span><input id="optCRRolls" type="number" step="0.1" value="13.1">
-          <span>当前暴击伤害词条数</span><input id="optCDRolls" type="number" step="0.1" value="14.6">
-          <span>参与优化总词条数</span><input id="optTotalRolls" type="number" step="1" value="36">
+          <span>当前攻击%词条数</span><input id="optAtkRolls" type="number" step="0.1" value="0">
+          <span>当前精通词条数</span><input id="optEMRolls" type="number" step="0.1" value="0">
+          <span>当前暴击率词条数</span><input id="optCRRolls" type="number" step="0.1" value="0">
+          <span>当前暴击伤害词条数</span><input id="optCDRolls" type="number" step="0.1" value="0">
+          <span>参与优化总词条数</span><input id="optTotalRolls" type="number" step="1" value="0">
         </div>
         <div class="button-row" style="margin-top:10px;">
           <button type="button" class="small-btn" onclick="syncOptimizerTotalRolls()">用当前四项合计</button>
           <button type="button" class="small-btn active" onclick="runAxisOptimizer()">计算全轴最优分配</button>
         </div>
         <div class="note">
-          词条数可以填小数，表示按圣遗物面板反推的近似值；枚举时总词条数会取整数。攻击%按角色白值+武器白值换算，不把C2基础攻击当作圣遗物攻击%基准。
+          初始默认不填你的个人词条。使用时请先按当前圣遗物输入四类词条数，或点“用当前四项合计”。词条数可以填小数，表示按圣遗物面板反推的近似值；枚举时总词条数会取整数。攻击%按角色白值+武器白值换算，不把C2基础攻击当作圣遗物攻击%基准。
         </div>
       </div>
       <div class="summary-grid" id="optimizerSummary" style="display:none; margin-top:10px;">
@@ -782,9 +829,10 @@
     let isRestoringCache = false;
     let compareBaseline = null;
     let selectedAxisIndex = -1;
+    let axisEditorOpen = false;
 
-    const CACHE_KEY = "mwkFullAxisCalc.v5";
-    const COMPARE_KEY = "mwkFullAxisCompare.v5";
+    const CACHE_KEY = "mwkFullAxisCalc.v8";
+    const COMPARE_KEY = "mwkFullAxisCompare.v8";
     const PRESET_KEY = "mwkArtifactPresets.v1";
     const AXIS_PRESET_KEY = "mwkAxisUserPresets.v1";
 
@@ -1306,6 +1354,7 @@
         box.appendChild(btn);
       });
       renderAxisExceptionSummary();
+      renderAxisEditorTable();
     }
 
     function escapeHtml(str) {
@@ -1349,6 +1398,151 @@
         if (parts.length) notes.push((row.name || ("#" + (i + 1))) + "：" + parts.join("，"));
       });
       el.textContent = notes.length ? "当前异常：" + notes.join("；") : "当前异常：无，默认全轴吃满短拐。";
+    }
+
+    function toggleAxisEditor(force) {
+      axisEditorOpen = typeof force === "boolean" ? force : !axisEditorOpen;
+      const box = document.getElementById("axisEditorBox");
+      if (box) box.classList.toggle("show", axisEditorOpen);
+      renderAxisEditorTable();
+    }
+
+    function axisTypeOptions(selected) {
+      const options = [
+        ["charged", "重击循环z"],
+        ["chargedFinal", "重击终结P"],
+        ["burst", "Q首刀"],
+        ["sprint", "闪避s"],
+        ["plunge", "下落/跳劈"],
+        ["custom", "手动倍率"]
+      ];
+      return options.map(([value, label]) => `<option value="${value}" ${value === selected ? "selected" : ""}>${label}</option>`).join("");
+    }
+
+    function renderAxisEditorTable() {
+      const body = document.getElementById("axisEditorBody");
+      if (!body) return;
+      const box = document.getElementById("axisEditorBox");
+      if (box) box.classList.toggle("show", axisEditorOpen);
+      if (!axisEditorOpen) {
+        body.innerHTML = "";
+        return;
+      }
+      body.innerHTML = "";
+      axisRows.forEach((row, i) => {
+        const b = normalizeShortBuffs(row.buffs);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td><input type="checkbox" ${row.enabled ? "checked" : ""} onchange="setAxisEditorField(${i}, 'enabled', this.checked)"></td>
+          <td><input type="text" value="${escapeHtml(row.name || "")}" onchange="setAxisEditorField(${i}, 'name', this.value)"></td>
+          <td><select onchange="setAxisEditorType(${i}, this.value)">${axisTypeOptions(row.type)}</select></td>
+          <td><input type="number" step="0.1" value="${fmt1(row.mult)}" onchange="setAxisEditorField(${i}, 'mult', this.value)"></td>
+          <td><input type="checkbox" ${row.qfs ? "checked" : ""} onchange="setAxisEditorField(${i}, 'qfs', this.checked)"></td>
+          <td><input type="checkbox" ${row.melt ? "checked" : ""} onchange="setAxisEditorField(${i}, 'melt', this.checked)"></td>
+          <td><input type="checkbox" ${b.bennett ? "checked" : ""} onchange="setAxisEditorBuff(${i}, 'bennett', this.checked)"></td>
+          <td><input type="checkbox" ${b.noblesse ? "checked" : ""} onchange="setAxisEditorBuff(${i}, 'noblesse', this.checked)"></td>
+          <td><input type="checkbox" ${b.ttds ? "checked" : ""} onchange="setAxisEditorBuff(${i}, 'ttds', this.checked)"></td>
+          <td><input type="checkbox" ${b.petra ? "checked" : ""} onchange="setAxisEditorBuff(${i}, 'petra', this.checked)"></td>
+          <td>
+            <button type="button" class="mini-btn" onclick="moveAxisRow(${i}, -1)">上</button>
+            <button type="button" class="mini-btn" onclick="moveAxisRow(${i}, 1)">下</button>
+            <button type="button" class="mini-btn" onclick="refreshAxisRowMultiplier(${i})">取倍率</button>
+            <button type="button" class="mini-btn" onclick="deleteAxisRow(${i})">删</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function setAxisEditorField(index, key, value) {
+      const row = axisRows[index];
+      if (!row) return;
+      if (["enabled", "qfs", "melt"].includes(key)) {
+        row[key] = Boolean(value);
+      } else if (["mult", "extra"].includes(key)) {
+        row[key] = Number(value) || 0;
+      } else if (key === "name") {
+        row[key] = String(value || "").trim() || ("段" + (index + 1));
+      }
+      renderAxisTable();
+      calculate();
+      scheduleSaveCache();
+    }
+
+    function setAxisEditorBuff(index, key, value) {
+      const row = axisRows[index];
+      if (!row) return;
+      row.buffs = normalizeShortBuffs(row.buffs);
+      row.buffs[key] = Boolean(value);
+      renderAxisTable();
+      calculate();
+      scheduleSaveCache();
+    }
+
+    function setAxisEditorType(index, type) {
+      const row = axisRows[index];
+      if (!row) return;
+      row.type = type || "custom";
+      if (row.type !== "custom") {
+        const c = readConfig();
+        row.mult = defaultMultiplierByType(row.type, c);
+      }
+      row.qfs = defaultQfsForRow(row, index);
+      renderAxisTable();
+      calculate();
+      scheduleSaveCache();
+    }
+
+    function refreshAxisRowMultiplier(index) {
+      const row = axisRows[index];
+      if (!row) return;
+      if (row.type !== "custom") {
+        const c = readConfig();
+        row.mult = defaultMultiplierByType(row.type, c);
+      }
+      renderAxisTable();
+      calculate();
+      scheduleSaveCache();
+    }
+
+    function addAxisRow() {
+      const c = readConfig();
+      const index = axisRows.length;
+      const row = {
+        name: "新段" + (index + 1),
+        type: "charged",
+        mult: defaultMultiplierByType("charged", c),
+        qfs: true,
+        enabled: true,
+        melt: false,
+        extra: 0,
+        buffs: defaultShortBuffs()
+      };
+      axisRows.push(row);
+      axisEditorOpen = true;
+      renderAxisTable();
+      calculate();
+      saveCache(true);
+    }
+
+    function deleteAxisRow(index) {
+      if (!axisRows[index]) return;
+      axisRows.splice(index, 1);
+      renderAxisTable();
+      calculate();
+      scheduleSaveCache();
+    }
+
+    function moveAxisRow(index, direction) {
+      const to = index + direction;
+      if (to < 0 || to >= axisRows.length) return;
+      const tmp = axisRows[index];
+      axisRows[index] = axisRows[to];
+      axisRows[to] = tmp;
+      renderAxisTable();
+      calculate();
+      scheduleSaveCache();
     }
 
     function openAxisModal(index) {
@@ -2164,7 +2358,7 @@
     function bindGlobalInputs() {
       document.querySelectorAll("input, select").forEach(el => {
         if (!el.id) return;
-        if (el.closest("#axisTable")) return;
+        if (el.closest("#axisTable") || el.closest("#axisEditorTable")) return;
         if (["presetName", "presetSelect", "axisPresetName", "axisPresetSelect"].includes(el.id)) return;
         el.addEventListener("input", () => {
           if (["mavQLevel", "mavELevel"].includes(el.id)) updateAxisMultipliersFromTalents(false);
