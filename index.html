@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>火希茜班·玛薇卡首刀与全轴计算器 v6</title>
+  <title>火希茜班·玛薇卡首刀与全轴计算器 v7</title>
   <style>
     :root {
       --main: #d9480f;
@@ -351,7 +351,7 @@
   </style>
 </head>
 <body>
-  <h1>火希茜班·玛薇卡 Q 首刀 + ZQZzzszPszPszP 全轴计算器 v5</h1>
+  <h1>火希茜班·玛薇卡 Q 首刀 + ZQZzzszPszPszP 全轴计算器 v7</h1>
 
   <div class="topbar">
     <div class="card">
@@ -420,7 +420,11 @@
       <label>裸面板暴击率% <input id="mavCritRate" type="number" step="0.1" value="" placeholder="角色页暴率"></label>
       <label>裸面板暴击伤害% <input id="mavCritDmg" type="number" step="0.1" value="" placeholder="角色页暴伤"></label>
       <label>裸面板火伤/自身增伤% <input id="mavSelfDmg" type="number" step="0.1" value="" placeholder="角色页火伤"></label>
-      <div class="note">裸面板指不吃班尼特、双火、宗室、讨龙、希诺宁、茜特菈莉时角色详情页显示的数值。专武副词条暴击率请直接体现在裸面板中；专武开关只计触发后的攻击+49%、暴伤+35%。</div>
+      <div class="button-row" style="margin-top:6px;">
+        <button type="button" class="small-btn" onclick="setMavSelfDmgPreset(46.6)">火伤杯 46.6%</button>
+        <button type="button" class="small-btn" onclick="setMavSelfDmgPreset(0)">非火伤杯 0%</button>
+      </div>
+      <div class="note">裸面板指不吃班尼特、双火、宗室、讨龙、希诺宁、茜特菈莉时角色详情页显示的数值。火伤杯可直接点预设：上杯为46.6%，不上杯为0%。专武副词条暴击率请直接体现在裸面板中；专武开关只计触发后的攻击+49%、暴伤+35%。</div>
 
       <h3>玛薇卡天赋/自身加成</h3>
       <label>Q基础等级 <input id="mavQLevel" type="number" min="1" max="13" value="10"></label>
@@ -578,10 +582,20 @@
       <div class="box">
         <div class="button-row">
           <button type="button" class="small-btn" onclick="loadAxisPreset('sixMelt')">载入默认6融轴</button>
-          <button type="button" class="small-btn" onclick="loadAxisPreset('noMelt')">全部不融化</button>
-          <button type="button" class="small-btn" onclick="loadAxisPreset('allMelt')">全部火伤都融</button>
+          <button type="button" class="small-btn" onclick="resetAxisBuffSimulation()">恢复默认吃拐/融化</button>
         </div>
-        <div class="note">默认把 Z 和 z 视为骑车重击循环段，P 视为重击终结段；本版主要用于掉短拐与融化失败模拟。</div>
+        <div class="note">默认把 Z 和 z 视为骑车重击循环段，P 视为重击终结段；不再提供“全不融/全融”按钮，融化分布通过动作弹框单段调整。</div>
+        <div class="box" style="margin-top:10px;">
+          <h3 style="margin-top:0;">自定义轴保存</h3>
+          <label>轴预设名 <input id="axisPresetName" type="text" placeholder="如：5融保守轴 / 8融高手轴"></label>
+          <label>选择轴预设 <select id="axisPresetSelect"></select></label>
+          <div class="button-row">
+            <button type="button" class="small-btn" onclick="saveAxisUserPreset()">保存当前轴</button>
+            <button type="button" class="small-btn" onclick="loadAxisUserPreset()">读取</button>
+            <button type="button" class="small-btn danger" onclick="deleteAxisUserPreset()">删除</button>
+          </div>
+          <div class="note" id="axisPresetStatus">保存内容：动作序列、融化分布、短拐掉落设置。适合保存5融、6融、8融等不同手法。</div>
+        </div>
       </div>
 
       <h3>轴参数</h3>
@@ -772,6 +786,7 @@
     const CACHE_KEY = "mwkFullAxisCalc.v5";
     const COMPARE_KEY = "mwkFullAxisCompare.v5";
     const PRESET_KEY = "mwkArtifactPresets.v1";
+    const AXIS_PRESET_KEY = "mwkAxisUserPresets.v1";
 
     function clamp(x, min, max) { return Math.max(min, Math.min(max, x)); }
     function lv(n) { return clamp(Math.round(Number(n) || 1), 1, 13); }
@@ -784,6 +799,14 @@
     function fmt2(n) { return Number.isFinite(n) ? Number(n).toFixed(4) : "-"; }
     function pct(n) { return Number.isFinite(n) ? (n * 100).toFixed(2) + "%" : "-"; }
     function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+
+    function setMavSelfDmgPreset(value) {
+      const el = document.getElementById("mavSelfDmg");
+      if (!el) return;
+      el.value = Number(value).toFixed(1).replace(/\.0$/, "");
+      calculate();
+      saveCache(true);
+    }
 
     function talentArrayValue(arr, level) {
       const l = clamp(Math.round(level), 1, 13);
@@ -1879,7 +1902,7 @@
       const fields = {};
       document.querySelectorAll("input, select").forEach(el => {
         if (!el.id) return;
-        if (el.id === "presetName" || el.id === "presetSelect") return;
+        if (["presetName", "presetSelect", "axisPresetName", "axisPresetSelect"].includes(el.id)) return;
         fields[el.id] = el.type === "checkbox" ? el.checked : el.value;
       });
       return fields;
@@ -1887,7 +1910,7 @@
 
     function collectCacheData() {
       return {
-        version: 5,
+        version: 7,
         updatedAt: new Date().toISOString(),
         state: clone(state),
         fields: collectPlainFields(),
@@ -1965,6 +1988,89 @@
       } catch (err) {
         updateCacheStatus("清空失败，浏览器可能禁用了 localStorage。");
       }
+    }
+
+    function getAxisUserPresets() {
+      try {
+        return JSON.parse(localStorage.getItem(AXIS_PRESET_KEY) || "{}");
+      } catch (err) {
+        return {};
+      }
+    }
+
+    function setAxisUserPresets(presets) {
+      try {
+        localStorage.setItem(AXIS_PRESET_KEY, JSON.stringify(presets || {}));
+      } catch (err) {}
+      renderAxisUserPresetSelect();
+    }
+
+    function renderAxisUserPresetSelect() {
+      const select = document.getElementById("axisPresetSelect");
+      if (!select) return;
+      const current = select.value;
+      const presets = getAxisUserPresets();
+      select.innerHTML = "";
+      const empty = document.createElement("option");
+      empty.value = "";
+      empty.textContent = "选择已保存轴";
+      select.appendChild(empty);
+      Object.keys(presets).sort().forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
+      });
+      if (current && presets[current]) select.value = current;
+    }
+
+    function setAxisPresetStatus(msg) {
+      const el = document.getElementById("axisPresetStatus");
+      if (el) el.textContent = msg;
+    }
+
+    function saveAxisUserPreset() {
+      const nameEl = document.getElementById("axisPresetName");
+      const name = nameEl ? nameEl.value.trim() : "";
+      if (!name) {
+        setAxisPresetStatus("请先填写轴预设名。");
+        return;
+      }
+      const presets = getAxisUserPresets();
+      presets[name] = {
+        axisRows: normalizeAxisRows(axisRows),
+        savedAt: new Date().toISOString()
+      };
+      setAxisUserPresets(presets);
+      const select = document.getElementById("axisPresetSelect");
+      if (select) select.value = name;
+      setAxisPresetStatus("已保存轴预设：" + name + "。");
+    }
+
+    function loadAxisUserPreset() {
+      const name = val("axisPresetSelect");
+      const presets = getAxisUserPresets();
+      if (!name || !presets[name]) {
+        setAxisPresetStatus("没有选中可读取的轴预设。");
+        return;
+      }
+      axisRows = normalizeAxisRows(presets[name].axisRows);
+      renderAxisTable();
+      calculate();
+      saveCache(true);
+      setAxisPresetStatus("已读取轴预设：" + name + "。");
+    }
+
+    function deleteAxisUserPreset() {
+      const name = val("axisPresetSelect");
+      const presets = getAxisUserPresets();
+      if (!name || !presets[name]) {
+        setAxisPresetStatus("没有选中可删除的轴预设。");
+        return;
+      }
+      delete presets[name];
+      setAxisUserPresets(presets);
+      setAxisPresetStatus("已删除轴预设：" + name + "。");
     }
 
     function getArtifactPresets() {
@@ -2059,7 +2165,7 @@
       document.querySelectorAll("input, select").forEach(el => {
         if (!el.id) return;
         if (el.closest("#axisTable")) return;
-        if (el.id === "presetName" || el.id === "presetSelect") return;
+        if (["presetName", "presetSelect", "axisPresetName", "axisPresetSelect"].includes(el.id)) return;
         el.addEventListener("input", () => {
           if (["mavQLevel", "mavELevel"].includes(el.id)) updateAxisMultipliersFromTalents(false);
           calculate();
@@ -2075,6 +2181,7 @@
 
     function init() {
       renderPresetSelect();
+      renderAxisUserPresetSelect();
       loadCompareBaseline();
       loadCache();
       updateLocks();
