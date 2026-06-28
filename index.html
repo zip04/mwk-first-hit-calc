@@ -464,7 +464,7 @@
     <div class="card">
       <h2>页面缓存与对比</h2>
       <div class="button-row">
-        <button type="button" class="small-btn" onclick="setCompareBaseline()">设为对比前</button>
+        <button type="button" class="small-btn active" onclick="setCompareBaseline()">记录当前为对比前</button>
         <button type="button" class="small-btn" onclick="clearCompareBaseline()">清除对比</button>
         <button type="button" class="small-btn danger" onclick="clearCache()">清空页面缓存</button>
       </div>
@@ -2137,21 +2137,36 @@
       };
     }
 
-    function renderCompare(cur) {
+    function renderCompare(cur, justSaved = false) {
       const box = document.getElementById("compareBox");
       const summary = document.getElementById("compareSummary");
       const table = document.getElementById("compareTable");
-      if (!compareBaseline) {
+      if (!box || !summary || !table) return;
+
+      if (!compareBaseline || !compareBaseline.panel) {
         box.style.display = "none";
         return;
       }
+
+      if (!cur || !cur.panel) cur = snapshotCurrent();
+
       const b = compareBaseline.panel;
       const a = cur.panel;
       box.style.display = "block";
-      summary.innerHTML =
-        "对比前：<strong>" + consText(compareBaseline.cons) + "</strong>　当前：<strong>" + consText(cur.cons) + "</strong><br>" +
-        "首刀期望变化：<strong>" + signedFmt(a.firstExpected - b.firstExpected) + "（" + signedPctChange(a.firstExpected, b.firstExpected) + "）</strong>　" +
-        "全轴期望变化：<strong>" + signedFmt(a.axisExpected - b.axisExpected) + "（" + signedPctChange(a.axisExpected, b.axisExpected) + "）</strong>";
+
+      if (justSaved) {
+        summary.innerHTML =
+          "已记录当前配置为<strong>对比前</strong>。现在修改面板、命座、读取另一套预设或调整动作轴后，这里会自动显示前后变化。<br>" +
+          "对比前：<strong>" + consText(compareBaseline.cons) + "</strong><br>" +
+          "首刀期望：<strong>" + fmt(b.firstExpected) + "</strong>　" +
+          "全轴期望：<strong>" + fmt(b.axisExpected) + "</strong>";
+      } else {
+        summary.innerHTML =
+          "对比前：<strong>" + consText(compareBaseline.cons) + "</strong>　当前：<strong>" + consText(cur.cons) + "</strong><br>" +
+          "首刀期望变化：<strong>" + signedFmt(a.firstExpected - b.firstExpected) + "（" + signedPctChange(a.firstExpected, b.firstExpected) + "）</strong>　" +
+          "全轴期望变化：<strong>" + signedFmt(a.axisExpected - b.axisExpected) + "（" + signedPctChange(a.axisExpected, b.axisExpected) + "）</strong>";
+      }
+
       table.innerHTML = "";
       table.innerHTML += compareRow("首刀期望伤害", b.firstExpected, a.firstExpected, fmt, true);
       table.innerHTML += compareRow("首刀暴击伤害", b.firstCrit, a.firstCrit, fmt, true);
@@ -2159,20 +2174,43 @@
       table.innerHTML += compareRow("全轴全暴击伤害", b.axisCrit, a.axisCrit, fmt, true);
       table.innerHTML += compareRow("最终攻击力", b.finalAtk, a.finalAtk, fmt, false);
       table.innerHTML += compareRow("最终精通", b.finalEM, a.finalEM, fmt, false);
+      table.innerHTML += compareRow("最终暴击率", b.finalCR, a.finalCR, x => x.toFixed(1) + "%", false);
+      table.innerHTML += compareRow("最终暴击伤害", b.finalCD, a.finalCD, x => x.toFixed(1) + "%", false);
       table.innerHTML += compareRow("C6天火期望", b.axisC6Expected, a.axisC6Expected, fmt, true);
       table.innerHTML += compareRow("反应段数", b.axisMeltCount, a.axisMeltCount, x => x.toFixed(0), false);
     }
 
     function setCompareBaseline() {
       compareBaseline = snapshotCurrent();
-      try { localStorage.setItem(COMPARE_KEY, JSON.stringify(compareBaseline)); } catch (err) {}
-      renderCompare(compareBaseline);
+
+      try {
+        localStorage.setItem(COMPARE_KEY, JSON.stringify(compareBaseline));
+      } catch (err) {}
+
+      renderCompare(snapshotCurrent(), true);
+
+      const cacheStatus = document.getElementById("cacheStatus");
+      if (cacheStatus) {
+        cacheStatus.innerHTML =
+          "对比前已记录：首刀期望 " + fmt(compareBaseline.panel.firstExpected) +
+          "，全轴期望 " + fmt(compareBaseline.panel.axisExpected) +
+          "。现在可以设置另一套进行对比。";
+      }
     }
 
     function clearCompareBaseline() {
       compareBaseline = null;
-      try { localStorage.removeItem(COMPARE_KEY); } catch (err) {}
+
+      try {
+        localStorage.removeItem(COMPARE_KEY);
+      } catch (err) {}
+
       renderCompare(snapshotCurrent());
+
+      const cacheStatus = document.getElementById("cacheStatus");
+      if (cacheStatus) {
+        cacheStatus.textContent = "已清除对比前记录。";
+      }
     }
 
     function loadCompareBaseline() {
