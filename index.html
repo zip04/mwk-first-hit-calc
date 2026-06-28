@@ -767,18 +767,18 @@
           需要自己去小程序啥的找找自己面板的词条数再填。这里按“总有效词条数不变”枚举攻击%、精通、暴击率、暴击伤害的理论最优分配。暴击率超过100%的部分会自动按0收益处理。
         </div>
         <div class="summary-grid">
-          <span>当前攻击%词条数</span><input id="optAtkRolls" type="number" step="0.1" value="0">
-          <span>当前精通词条数</span><input id="optEMRolls" type="number" step="0.1" value="0">
-          <span>当前暴击率词条数</span><input id="optCRRolls" type="number" step="0.1" value="0">
-          <span>当前暴击伤害词条数</span><input id="optCDRolls" type="number" step="0.1" value="0">
-          <span>参与优化总词条数</span><input id="optTotalRolls" type="number" step="1" value="0">
+          <span>大攻击词条数</span><input id="optAtkRolls" type="number" step="0.1" value="0">
+          <span>精通词条数</span><input id="optEMRolls" type="number" step="0.1" value="0">
+          <span>暴击率词条数</span><input id="optCRRolls" type="number" step="0.1" value="0">
+          <span>暴击伤害词条数</span><input id="optCDRolls" type="number" step="0.1" value="0">
+          <span>总词条数（取整）</span><input id="optTotalRolls" type="number" step="1" value="0">
         </div>
         <div class="button-row" style="margin-top:10px;">
           <button type="button" class="small-btn" onclick="syncOptimizerTotalRolls()">当前圣遗物分析</button>
           <button type="button" class="small-btn active" onclick="runAxisOptimizer()">计算最优分配后分析</button>
         </div>
         <div class="note">
-          初始默认不填你的个人词条。使用时请先按当前圣遗物输入四类词条数，或点“用当前四项合计”。词条数可以填小数，表示按圣遗物面板反推的近似值；枚举时总词条数会取整数。攻击%按角色白值+武器白值换算，不把C2基础攻击当作圣遗物攻击%基准。
+          词条数可以填小数；优化时总词条数会取整。
         </div>
       </div>
       <div class="summary-grid" id="optimizerSummary" style="display:none; margin-top:10px;">
