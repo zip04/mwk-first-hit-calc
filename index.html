@@ -2,93 +2,141 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>火希茜班·玛薇卡首刀专用计算器</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>火希茜班·玛薇卡首刀与全轴计算器 v5</title>
   <style>
+    :root {
+      --main: #d9480f;
+      --main-dark: #bf3e0c;
+      --bg: #f5f6f8;
+      --card: #ffffff;
+      --text: #222;
+      --muted: #666;
+      --line: #ddd;
+      --soft: #f8f9fa;
+      --warn: #c92a2a;
+    }
+
+    * { box-sizing: border-box; }
+
     body {
+      margin: 0;
+      padding: 20px;
+      background: var(--bg);
+      color: var(--text);
       font-family: "Microsoft YaHei", Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 22px;
-      color: #222;
     }
 
     h1 {
-      margin-top: 0;
-      font-size: 26px;
+      margin: 0 0 14px;
+      font-size: 25px;
+      line-height: 1.3;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 14px;
+      color: #444;
+    }
+
+    .topbar,
+    .layout {
+      max-width: 1680px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(320px, 1.2fr) minmax(320px, 1.1fr) minmax(320px, 1.7fr);
+      gap: 14px;
+      margin-bottom: 14px;
     }
 
     .layout {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1.25fr;
-      gap: 16px;
+      grid-template-columns: repeat(4, minmax(280px, 1fr));
+      gap: 14px;
+      align-items: start;
     }
 
     .card {
-      background: white;
-      padding: 16px;
+      background: var(--card);
+      padding: 15px;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-    h2 {
-      font-size: 19px;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 8px;
-      margin-top: 0;
-    }
+    .wide { grid-column: span 2; }
+    .full { grid-column: 1 / -1; }
 
-    h3 {
-      font-size: 15px;
-      color: #444;
-      margin: 16px 0 8px;
-    }
-
-    label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    label,
+    .field-row {
+      display: grid;
+      grid-template-columns: minmax(125px, 1fr) 128px;
       gap: 10px;
-      margin: 8px 0;
+      align-items: center;
+      margin: 7px 0;
       font-size: 13px;
     }
 
-    input, select {
-      width: 124px;
-      padding: 5px 6px;
+    label input,
+    label select,
+    .field-row input,
+    .field-row select {
+      width: 100%;
+    }
+
+    input, select, textarea {
+      padding: 5px 7px;
       border: 1px solid #aaa;
       border-radius: 6px;
-      box-sizing: border-box;
+      background: #fff;
       font-size: 13px;
+      font-family: inherit;
     }
 
     input[type="checkbox"] {
-      width: auto;
+      width: 18px;
+      height: 18px;
+      justify-self: end;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 70px;
+      resize: vertical;
+      line-height: 1.5;
     }
 
     button {
-      width: 100%;
-      margin-top: 12px;
-      padding: 9px;
-      background: #d9480f;
-      color: white;
       border: 0;
       border-radius: 8px;
+      padding: 8px 10px;
+      background: var(--main);
+      color: white;
       cursor: pointer;
-      font-size: 15px;
+      font-size: 14px;
+      font-family: inherit;
     }
 
-    button:hover {
-      background: #bf3e0c;
-    }
+    button:hover { background: var(--main-dark); }
 
     .button-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 5px;
+      gap: 6px;
+      align-items: center;
     }
 
     .small-btn {
       width: auto;
-      margin-top: 0;
       padding: 5px 9px;
       background: #e9ecef;
       color: #222;
@@ -96,99 +144,256 @@
       font-size: 13px;
     }
 
-    .small-btn:hover {
-      background: #dee2e6;
-    }
-
-    .small-btn.active {
-      background: #d9480f;
-      color: white;
-    }
+    .small-btn:hover { background: #dee2e6; }
+    .small-btn.active { background: var(--main); color: #fff; }
+    .small-btn.danger { background: #f1f3f5; color: #b02a37; }
+    .small-btn.danger:hover { background: #ffe3e3; }
 
     .box {
-      margin-bottom: 12px;
+      margin: 10px 0 12px;
       padding: 10px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--line);
       border-radius: 8px;
-      background: #fafafa;
+      background: var(--soft);
     }
 
-    .locked {
-      opacity: 0.42;
-    }
-
+    .locked { opacity: 0.42; }
     .locked input,
-    .locked select {
-      pointer-events: none;
+    .locked select { pointer-events: none; }
+
+    .note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+      margin-top: 8px;
     }
 
     .result {
-      line-height: 1.85;
+      line-height: 1.75;
       font-size: 14px;
     }
 
-    .result strong {
-      color: #c92a2a;
+    .result strong { color: var(--warn); }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 14px;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .summary-grid span:nth-child(odd) { color: #444; }
+    .summary-grid strong { color: var(--warn); }
+
+    .process {
+      margin-top: 10px;
+      padding: 10px;
+      background: #303030;
+      color: #eee;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.6;
+      word-break: break-word;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 13px;
+      margin-top: 9px;
+      font-size: 12px;
     }
 
     th, td {
-      padding: 7px;
-      border-bottom: 1px solid #ddd;
+      padding: 7px 6px;
+      border-bottom: 1px solid var(--line);
       text-align: right;
+      vertical-align: middle;
     }
 
-    th:first-child, td:first-child {
-      text-align: left;
-    }
+    th:first-child, td:first-child { text-align: left; }
+    td input[type="number"] { width: 86px; text-align: right; }
+    td input[type="text"] { width: 100%; min-width: 72px; }
+    td input[type="checkbox"] { justify-self: center; }
 
-    .note {
-      margin-top: 10px;
-      color: #666;
-      font-size: 12px;
-      line-height: 1.6;
-    }
-
-    .process {
-      margin-top: 10px;
-      padding: 10px;
-      background: #333;
-      color: #eee;
+    .axis-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
       border-radius: 8px;
+      background: #fff;
+    }
+
+    .axis-table-wrap table { margin-top: 0; min-width: 760px; }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #fff4e6;
+      color: #bf3e0c;
       font-size: 12px;
-      line-height: 1.6;
-      word-break: break-all;
+      margin-right: 5px;
     }
 
-    @media (max-width: 1200px) {
-      .layout {
-        grid-template-columns: 1fr 1fr;
-      }
+
+
+    .axis-button-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
     }
 
-    @media (max-width: 800px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
+    .axis-seg-btn {
+      width: auto;
+      min-width: 44px;
+      margin: 0;
+      padding: 8px 10px;
+      background: #fff;
+      color: #222;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
+    .axis-seg-btn:hover { background: #fff4e6; }
+    .axis-seg-btn.melt { border-color: #d9480f; color: #bf3e0c; font-weight: 700; }
+    .axis-seg-btn.modified { box-shadow: 0 0 0 2px rgba(217,72,15,0.18) inset; }
+    .axis-seg-btn.disabled { opacity: 0.45; }
+
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 18px;
+    }
+
+    .modal-mask.show { display: flex; }
+
+    .modal-card {
+      width: min(560px, 100%);
+      max-height: 92vh;
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.28);
+      padding: 18px;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .modal-head h3 { margin: 0; font-size: 18px; }
+    .modal-close { width: auto; margin: 0; padding: 4px 9px; background: #e9ecef; color: #222; }
+
+    .choice-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0 12px;
+    }
+
+    .choice-row label {
+      justify-content: flex-start;
+      width: auto;
+      margin: 0;
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fafafa;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .modal-actions button { margin-top: 0; }
+
+    .status-line {
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fafafa;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1350px) {
+      .topbar { grid-template-columns: 1fr 1fr; }
+      .topbar .card:last-child { grid-column: 1 / -1; }
+      .layout { grid-template-columns: repeat(2, minmax(280px, 1fr)); }
+      .wide { grid-column: span 2; }
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 12px; }
+      .topbar, .layout { grid-template-columns: 1fr; }
+      .wide, .full, .topbar .card:last-child { grid-column: auto; }
+      label, .field-row { grid-template-columns: minmax(120px, 1fr) 116px; }
+      .summary-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
-
 <body>
-  <h1>火希茜班·玛薇卡 Q 首刀专用计算器</h1>
+  <h1>火希茜班·玛薇卡 Q 首刀 + ZQZzzszPszPszP 全轴计算器 v5</h1>
+
+  <div class="topbar">
+    <div class="card">
+      <h2>页面缓存与对比</h2>
+      <div class="button-row">
+        <button type="button" class="small-btn" onclick="setCompareBaseline()">设为对比前</button>
+        <button type="button" class="small-btn" onclick="clearCompareBaseline()">清除对比</button>
+        <button type="button" class="small-btn danger" onclick="clearCache()">清空页面缓存</button>
+      </div>
+      <div class="note" id="cacheStatus">缓存状态：等待读取。</div>
+      <div class="note">页面会自动保存所有输入。对比功能会同时比较首刀与全轴。</div>
+    </div>
+
+    <div class="card">
+      <h2>圣遗物/面板预设</h2>
+      <label>预设名 <input id="presetName" type="text" placeholder="如：黑曜攻火暴A"></label>
+      <label>选择预设 <select id="presetSelect"></select></label>
+      <div class="button-row">
+        <button type="button" class="small-btn" onclick="saveArtifactPreset()">保存当前面板</button>
+        <button type="button" class="small-btn" onclick="loadArtifactPreset()">读取</button>
+        <button type="button" class="small-btn danger" onclick="deleteArtifactPreset()">删除</button>
+      </div>
+      <div class="note" id="presetStatus">保存内容：裸面板攻击、精通、暴击率、暴击伤害、火伤/自身增伤，以及黑曜2/4、专武触发开关。</div>
+    </div>
+
+    <div class="card">
+      <h2>当前简化假设</h2>
+      <div class="note">
+        <span class="pill">全轴默认</span>Z Q Z z z s z P s z P s z P。<br>
+        <span class="pill">动作定义</span>z/Z 为重击循环伤害，P 为重击终结伤害，s 为闪避伤害。<br>
+        <span class="pill">六融默认</span>只让 Z、Q、Z、P、P、P 吃反应；s 与小写 z 默认不反应。<br>
+        <span class="pill">C6天火</span>默认 500% × 3 次，不附着、不融化；Q战意追加逐段区分。
+      </div>
+    </div>
+  </div>
 
   <div class="layout">
     <div class="card">
       <h2>玛薇卡</h2>
 
       <div class="box">
-        <div style="margin-bottom: 8px;">玛薇卡命座</div>
+        <h3 style="margin-top:0;">玛薇卡命座</h3>
         <div id="mavuikaButtons" class="button-row">
           <button type="button" class="small-btn active" onclick="setCons('mavuika', 0)">C0</button>
           <button type="button" class="small-btn" onclick="setCons('mavuika', 1)">C1</button>
@@ -198,12 +403,11 @@
           <button type="button" class="small-btn" onclick="setCons('mavuika', 5)">C5</button>
           <button type="button" class="small-btn" onclick="setCons('mavuika', 6)">C6</button>
         </div>
-
         <label data-role="lock" data-character="mavuika" data-cons="1">C1攻击+40% <input id="mavC1Atk" type="checkbox" checked></label>
         <label data-role="lock" data-character="mavuika" data-cons="2">C2基础攻击+200 <input id="mavC2BaseAtk" type="checkbox" checked></label>
-        <label data-role="lock" data-character="mavuika" data-cons="2">C2首刀额外倍率 <input id="mavC2Extra" type="checkbox" checked></label>
+        <label data-role="lock" data-character="mavuika" data-cons="2">C2伤害提高 <input id="mavC2Extra" type="checkbox" checked></label>
         <label data-role="lock" data-character="mavuika" data-cons="4">C4强化A4 <input id="mavC4A4" type="checkbox" checked></label>
-        <label data-role="lock" data-character="mavuika" data-cons="6">C6首刀吃20%防御降低 <input id="mavC6Def" type="checkbox" checked></label>
+        <label data-role="lock" data-character="mavuika" data-cons="6">C6防御降低20% <input id="mavC6Def" type="checkbox" checked></label>
       </div>
 
       <h3>基础与裸面板</h3>
@@ -211,27 +415,19 @@
       <label>角色基础攻击 <input id="mavCharBaseAtk" type="number" value="359"></label>
       <label>武器基础攻击 <input id="mavWeaponBaseAtk" type="number" value="741"></label>
       <label>专武触发 <input id="mavSigActive" type="checkbox" checked></label>
-      <div class="note">专武副词条暴击率已体现在裸面板暴击率中，本开关只计入触发后的攻击+49%、暴击伤害+35%。</div>
       <label>裸面板攻击力 <input id="mavPanelAtk" type="number" value="" placeholder="角色页攻击"></label>
       <label>裸面板元素精通 <input id="mavEM" type="number" value="" placeholder="角色页精通"></label>
       <label>裸面板暴击率% <input id="mavCritRate" type="number" step="0.1" value="" placeholder="角色页暴率"></label>
       <label>裸面板暴击伤害% <input id="mavCritDmg" type="number" step="0.1" value="" placeholder="角色页暴伤"></label>
       <label>裸面板火伤/自身增伤% <input id="mavSelfDmg" type="number" step="0.1" value="" placeholder="角色页火伤"></label>
+      <div class="note">裸面板指不吃班尼特、双火、宗室、讨龙、希诺宁、茜特菈莉时角色详情页显示的数值。专武副词条暴击率请直接体现在裸面板中；专武开关只计触发后的攻击+49%、暴伤+35%。</div>
 
-      <div class="note">
-        “裸面板”指角色详情页里不进战斗、不吃班尼特、双火、宗室、讨龙、希诺宁、茜特菈莉时的数值。
-      </div>
-
-      <h3>Q首刀倍率</h3>
+      <h3>玛薇卡天赋/自身加成</h3>
       <label>Q基础等级 <input id="mavQLevel" type="number" min="1" max="13" value="10"></label>
       <label>实际Q等级 <input id="mavQEffectiveLevel" type="number" value="10" disabled></label>
-      <label>Q基础倍率% <input id="mavQBaseMult" type="number" step="0.1" value="800.6" disabled></label>
+      <label>E基础等级 <input id="mavELevel" type="number" min="1" max="13" value="10"></label>
+      <label>实际E等级 <input id="mavEEffectiveLevel" type="number" value="10" disabled></label>
       <label>战意值 <input id="mavFS" type="number" min="0" max="200" value="200"></label>
-      <label>每点战意倍率% <input id="mavFSMult" type="number" step="0.001" value="2.9" disabled></label>
-      <label>C2额外倍率% <input id="mavC2Mult" type="number" step="0.1" value="120"></label>
-      <label>其他基础伤害 <input id="mavOtherBaseDmg" type="number" value="0"></label>
-
-      <h3>玛薇卡自身天赋/套装</h3>
       <label>A1攻击% <input id="mavA1AtkPct" type="number" step="0.1" value="30"></label>
       <label>A4生效 <input id="mavA4Active" type="checkbox" checked></label>
       <label>Q后经过时间s <input id="mavA4Elapsed" type="number" step="0.1" value="0"></label>
@@ -240,10 +436,10 @@
     </div>
 
     <div class="card">
-      <h2>班尼特</h2>
+      <h2>班尼特 / 希诺宁</h2>
 
       <div class="box">
-        <div style="margin-bottom: 8px;">班尼特命座</div>
+        <h3 style="margin-top:0;">班尼特命座</h3>
         <div id="bennettButtons" class="button-row">
           <button type="button" class="small-btn active" onclick="setCons('bennett', 0)">C0</button>
           <button type="button" class="small-btn" onclick="setCons('bennett', 1)">C1</button>
@@ -253,7 +449,6 @@
           <button type="button" class="small-btn" onclick="setCons('bennett', 5)">C5</button>
           <button type="button" class="small-btn" onclick="setCons('bennett', 6)">C6</button>
         </div>
-
         <label>班尼特Q生效 <input id="benActive" type="checkbox" checked></label>
         <label data-role="lock" data-character="bennett" data-cons="1">C1额外20%基础攻击 <input id="benC1Active" type="checkbox" checked></label>
         <label data-role="lock" data-character="bennett" data-cons="6">C6火伤+15% <input id="benC6Active" type="checkbox" checked></label>
@@ -272,10 +467,8 @@
       <label>其他固定攻击 <input id="otherFlatAtk" type="number" value="0"></label>
       <label>其他攻击% <input id="otherAtkPct" type="number" step="0.1" value="0"></label>
 
-      <h2 style="margin-top: 18px;">希诺宁</h2>
-
       <div class="box">
-        <div style="margin-bottom: 8px;">希诺宁命座</div>
+        <h3 style="margin-top:0;">希诺宁命座</h3>
         <div id="xilonenButtons" class="button-row">
           <button type="button" class="small-btn active" onclick="setCons('xilonen', 0)">C0</button>
           <button type="button" class="small-btn" onclick="setCons('xilonen', 1)">C1</button>
@@ -285,7 +478,6 @@
           <button type="button" class="small-btn" onclick="setCons('xilonen', 5)">C5</button>
           <button type="button" class="small-btn" onclick="setCons('xilonen', 6)">C6</button>
         </div>
-
         <label>希诺宁减抗生效 <input id="xiloActive" type="checkbox" checked></label>
         <label data-role="lock" data-character="xilonen" data-cons="2">C2火角色攻击+45% <input id="xiloC2Active" type="checkbox" checked></label>
         <label>磐岩4件火伤+35% <input id="petraActive" type="checkbox" checked></label>
@@ -299,10 +491,10 @@
     </div>
 
     <div class="card">
-      <h2>茜特菈莉</h2>
+      <h2>茜特菈莉 / 敌人</h2>
 
       <div class="box">
-        <div style="margin-bottom: 8px;">茜特菈莉命座</div>
+        <h3 style="margin-top:0;">茜特菈莉命座</h3>
         <div id="citlaliButtons" class="button-row">
           <button type="button" class="small-btn active" onclick="setCons('citlali', 0)">C0</button>
           <button type="button" class="small-btn" onclick="setCons('citlali', 1)">C1</button>
@@ -312,12 +504,11 @@
           <button type="button" class="small-btn" onclick="setCons('citlali', 5)">C5</button>
           <button type="button" class="small-btn" onclick="setCons('citlali', 6)">C6</button>
         </div>
-
         <label>茜特菈莉减抗生效 <input id="citActive" type="checkbox" checked></label>
-        <label data-role="lock" data-character="citlali" data-cons="1">C1星刃增伤生效 <input id="citC1Active" type="checkbox" checked></label>
-        <label data-role="lock" data-character="citlali" data-cons="2">C2精通/额外减抗生效 <input id="citC2Active" type="checkbox" checked></label>
+        <label data-role="lock" data-character="citlali" data-cons="1">C1星刃生效 <input id="citC1Active" type="checkbox" checked></label>
+        <label data-role="lock" data-character="citlali" data-cons="2">C2精通/额外减抗 <input id="citC2Active" type="checkbox" checked></label>
         <label>讨龙生效 <input id="ttdsActive" type="checkbox" checked></label>
-        <label>勇者/烬城4件火伤+40% <input id="scrollActive" type="checkbox" checked></label>
+        <label>勇者/烬城4火伤+40% <input id="scrollActive" type="checkbox" checked></label>
       </div>
 
       <h3>茜特菈莉乘区</h3>
@@ -326,31 +517,23 @@
       <label>C2额外火抗降低% <input id="citC2ResShred" type="number" step="0.1" value="20"></label>
       <label>C2给玛薇卡精通 <input id="citC2EMBuff" type="number" value="250"></label>
       <label>C1星刃倍率：茜EM× <input id="citC1EMScale" type="number" step="0.1" value="2"></label>
+      <label>首刀计入茜C1 <input id="citC1FirstHit" type="checkbox" checked></label>
+      <label>全轴茜C1次数 <input id="citC1AxisHits" type="number" min="0" step="1" value="0"></label>
       <label>勇者/烬城火伤% <input id="scrollDmg" type="number" step="0.1" value="40"></label>
+      <label>讨龙精炼 <select id="ttdsRefine">
+        <option value="24">R1 24%</option>
+        <option value="30">R2 30%</option>
+        <option value="36">R3 36%</option>
+        <option value="42">R4 42%</option>
+        <option value="48" selected>R5 48%</option>
+      </select></label>
 
-      <h3>讨龙</h3>
-      <label>
-        讨龙精炼
-        <select id="ttdsRefine">
-          <option value="24">R1 24%</option>
-          <option value="30">R2 30%</option>
-          <option value="36">R3 36%</option>
-          <option value="42">R4 42%</option>
-          <option value="48" selected>R5 48%</option>
-        </select>
-      </label>
-
-      <h2 style="margin-top: 18px;">敌人与反应</h2>
-
-      <label>
-        反应类型
-        <select id="reaction">
-          <option value="none">无反应</option>
-          <option value="melt" selected>火融化</option>
-          <option value="vape">火蒸发</option>
-        </select>
-      </label>
-
+      <h3>敌人与反应</h3>
+      <label>反应类型 <select id="reaction">
+        <option value="none">无反应</option>
+        <option value="melt" selected>火融化</option>
+        <option value="vape">火蒸发</option>
+      </select></label>
       <label>反应伤害加成% <input id="reactionBonus" type="number" step="0.1" value="0"></label>
       <label>敌人等级 <input id="enemyLevel" type="number" value="110"></label>
       <label>敌人初始火抗% <input id="enemyRes" type="number" step="0.1" value="10"></label>
@@ -362,100 +545,150 @@
     </div>
 
     <div class="card">
-      <h2>结果与乘区拆解</h2>
-
-      <div class="button-row" style="margin-top: 8px;">
-        <button type="button" class="small-btn" onclick="setCompareBaseline()">设为对比前</button>
-        <button type="button" class="small-btn" onclick="clearCompareBaseline()">清除对比</button>
-        <button type="button" class="small-btn" onclick="clearCache()">清空缓存</button>
+      <h2>Q首刀结果</h2>
+      <div class="summary-grid">
+        <span>当前命座</span><strong id="consSummary">-</strong>
+        <span>有效基础攻击</span><strong id="outBaseAtk">-</strong>
+        <span>最终攻击力</span><strong id="outAtk">-</strong>
+        <span>最终精通</span><strong id="outEM">-</strong>
+        <span>最终暴击率</span><strong id="outCR">-</strong>
+        <span>最终暴击伤害</span><strong id="outCD">-</strong>
+        <span>增伤区</span><strong id="outDmgBonus">-</strong>
+        <span>抗性乘区</span><strong id="outResMult">-</strong>
+        <span>防御乘区</span><strong id="outDefMult">-</strong>
+        <span>反应乘区</span><strong id="outReactionMult">-</strong>
+        <span>Q总倍率</span><strong id="outQTotalMult">-</strong>
+        <span>总基础伤害区</span><strong id="outBaseDmg">-</strong>
+        <span>首刀期望伤害</span><strong id="outExpected">-</strong>
+        <span>首刀暴击伤害</span><strong id="outCrit">-</strong>
+        <span>首刀不暴击伤害</span><strong id="outNonCrit">-</strong>
       </div>
-      <div class="note" id="cacheStatus">缓存状态：等待读取。</div>
-      <div class="note">对比方法：先点“设为对比前”，然后任意修改命座、开关、面板、敌人或反应参数，当前结果会自动与对比前比较。</div>
-      <div class="box" id="compareBox" style="display:none; margin-top: 10px;">
-        <h3 style="margin-top:0;">前后对比</h3>
-        <div class="result" id="compareSummary">尚未记录对比前数据。</div>
-        <table>
-          <thead>
-            <tr>
-              <th>项目</th>
-              <th>对比前</th>
-              <th>当前</th>
-              <th>变化</th>
-            </tr>
-          </thead>
-          <tbody id="compareTable"></tbody>
-        </table>
-      </div>
+      <div class="process" id="outProcess">请先填写玛薇卡裸面板。</div>
 
-      <div class="result">
-        当前命座：<strong id="consSummary">-</strong><br>
-        有效基础攻击：<strong id="outBaseAtk">-</strong><br>
-        最终攻击力：<strong id="outAtk">-</strong><br>
-        最终精通：<strong id="outEM">-</strong><br>
-        最终暴击率：<strong id="outCR">-</strong><br>
-        最终暴击伤害：<strong id="outCD">-</strong><br>
-        <br>
-        攻击%拐：<strong id="outAtkPctBuff">-</strong><br>
-        固定攻击拐：<strong id="outFlatAtkBuff">-</strong><br>
-        增伤区：<strong id="outDmgBonus">-</strong><br>
-        减抗合计：<strong id="outResShred">-</strong><br>
-        最终火抗：<strong id="outFinalRes">-</strong><br>
-        抗性乘区：<strong id="outResMult">-</strong><br>
-        防御降低：<strong id="outDefReduction">-</strong><br>
-        防御乘区：<strong id="outDefMult">-</strong><br>
-        反应乘区：<strong id="outReactionMult">-</strong><br>
-        <br>
-        Q基础伤害：<strong id="outQBaseDmg">-</strong><br>
-        战意基础伤害：<strong id="outFSDmg">-</strong><br>
-        C2基础伤害：<strong id="outC2Dmg">-</strong><br>
-        茜C1基础伤害：<strong id="outCitC1Dmg">-</strong><br>
-        总基础伤害区：<strong id="outBaseDmg">-</strong><br>
-        <br>
-        首刀期望伤害：<strong id="outExpected">-</strong><br>
-        首刀暴击伤害：<strong id="outCrit">-</strong><br>
-        首刀不暴击伤害：<strong id="outNonCrit">-</strong>
-      </div>
-
-      <div class="process" id="outProcess">请先填写玛薇卡裸面板攻击、精通、暴击、暴伤、火伤。</div>
-
-      <h3>四词条边际收益</h3>
+      <h3>首刀四词条边际收益</h3>
       <table>
-        <thead>
-          <tr>
-            <th>词条</th>
-            <th>等价增加</th>
-            <th>期望提升</th>
-          </tr>
-        </thead>
+        <thead><tr><th>词条</th><th>等价增加</th><th>期望提升</th></tr></thead>
         <tbody id="marginalTable"></tbody>
       </table>
+      <div class="note" id="note"></div>
+    </div>
 
-      <h3>来源拆解</h3>
+    <div class="card wide">
+      <h2>全轴计算：ZQZzzszPszPszP</h2>
+      <div class="box">
+        <div class="button-row">
+          <button type="button" class="small-btn" onclick="loadAxisPreset('sixMelt')">载入默认6融轴</button>
+          <button type="button" class="small-btn" onclick="loadAxisPreset('noMelt')">全部不融化</button>
+          <button type="button" class="small-btn" onclick="loadAxisPreset('allMelt')">全部火伤都融</button>
+        </div>
+        <div class="note">默认把 Z 和 z 视为骑车重击循环段，P 视为重击终结段；本版主要用于掉短拐与融化失败模拟。</div>
+      </div>
+
+      <h3>轴参数</h3>
+      <div class="note">
+        全轴默认仍按“Q后拐瞬间全上”的简化模型计算面板与乘区；这版逐段区分 Q 战意追加倍率：Q前 Z1 不吃，Q 本体吃，Q后重击循环 z/Z 吃，P 作为重击终结也吃，s 闪避不吃。<br>
+        如果以后要做别的动作轴，再恢复高级表格编辑即可；当前界面优先保持简洁。
+      </div>
+      <label data-role="lock" data-character="mavuika" data-cons="6">C6天火计入 <input id="c6RingActive" type="checkbox" checked></label>
+      <label data-role="lock" data-character="mavuika" data-cons="6">C6天火次数 <input id="c6RingHits" type="number" min="0" step="1" value="3"></label>
+      <label data-role="lock" data-character="mavuika" data-cons="6">C6天火倍率%/次 <input id="c6RingMult" type="number" step="0.1" value="500"></label>
+      <div class="note">天火按无附着处理：只吃增伤/暴击/防御/抗性，不吃反应。默认3次：Q前1次、Q中2次。</div>
+
+      <h3>动作序列与掉拐模拟</h3>
+      <div class="note">
+        默认全段吃满短拐。点击任意动作按钮，可在弹框里模拟该段、该段及之后、或同类段掉班尼特/宗室/讨龙/磐岩，或改成不融化。
+      </div>
+      <div id="axisButtons" class="axis-button-panel"></div>
+      <div class="note" id="axisExceptionSummary">当前异常：无，默认全轴吃满短拐。</div>
+      <div class="button-row" style="margin-top:10px;">
+        <button type="button" class="small-btn" onclick="resetAxisBuffSimulation()">恢复全轴吃满</button>
+      </div>
+    </div>
+
+    <div class="card wide">
+      <h2>全轴结果与拆解</h2>
+      <div class="summary-grid">
+        <span>全轴期望总伤害</span><strong id="axisExpected">-</strong>
+        <span>全轴全暴击伤害</span><strong id="axisCrit">-</strong>
+        <span>全轴不暴击伤害</span><strong id="axisNonCrit">-</strong>
+        <span>融化/反应段数</span><strong id="axisMeltCount">-</strong>
+        <span>常规轴伤害</span><strong id="axisNormalDmg">-</strong>
+        <span>C6天火伤害</span><strong id="axisC6Dmg">-</strong>
+        <span>全轴总倍率</span><strong id="axisTotalMult">-</strong>
+        <span>全轴对首刀倍率</span><strong id="axisVsFirst">-</strong>
+      </div>
+      <div class="process" id="axisProcess">全轴结果会自动计算。</div>
+
+      <h3>全轴四词条边际收益</h3>
       <table>
-        <thead>
-          <tr>
-            <th>来源</th>
-            <th>作用</th>
-            <th>数值</th>
-          </tr>
-        </thead>
-        <tbody id="sourceTable"></tbody>
+        <thead><tr><th>词条</th><th>等价增加</th><th>期望提升</th></tr></thead>
+        <tbody id="axisMarginalTable"></tbody>
       </table>
 
-      <div class="note" id="note"></div>
+      <h3>逐段伤害</h3>
+      <div class="axis-table-wrap">
+        <table>
+          <thead><tr><th>段</th><th>倍率%</th><th>Q战意</th><th>短拐</th><th>反应</th><th>期望</th><th>暴击</th><th>不暴击</th></tr></thead>
+          <tbody id="axisBreakdownTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card wide" id="compareBox" style="display:none;">
+      <h2>前后对比</h2>
+      <div class="result" id="compareSummary">尚未记录对比前数据。</div>
+      <table>
+        <thead><tr><th>项目</th><th>对比前</th><th>当前</th><th>变化</th></tr></thead>
+        <tbody id="compareTable"></tbody>
+      </table>
+    </div>
+
+    <div class="card wide">
+      <h2>来源拆解</h2>
+      <table>
+        <thead><tr><th>来源</th><th>作用</th><th>数值</th></tr></thead>
+        <tbody id="sourceTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <div id="axisModal" class="modal-mask" onclick="closeAxisModalByMask(event)">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="axisModalTitle">编辑动作段</h3>
+        <button type="button" class="modal-close" onclick="closeAxisModal()">关闭</button>
+      </div>
+
+      <div class="status-line" id="axisModalStatus">-</div>
+
+      <h3>影响范围</h3>
+      <div class="choice-row">
+        <label><input type="radio" name="axisScope" value="current" checked> 只改当前段</label>
+        <label><input type="radio" name="axisScope" value="after"> 当前段及之后</label>
+        <label><input type="radio" name="axisScope" value="sameType"> 所有同类段</label>
+      </div>
+
+      <h3>快捷模拟</h3>
+      <div class="modal-actions">
+        <button type="button" class="small-btn" onclick="applyAxisQuickAction('full')">吃满短拐</button>
+        <button type="button" class="small-btn" onclick="applyAxisQuickAction('dropBennett')">掉班尼特</button>
+        <button type="button" class="small-btn" onclick="applyAxisQuickAction('dropNoblesse')">掉宗室</button>
+        <button type="button" class="small-btn" onclick="applyAxisQuickAction('dropTTDS')">掉讨龙</button>
+        <button type="button" class="small-btn" onclick="applyAxisQuickAction('dropPetra')">掉磐岩</button>
+        <button type="button" class="small-btn" onclick="applyAxisQuickAction('dropShort')">掉全部短拐</button>
+        <button type="button" class="small-btn" onclick="applyAxisQuickAction('melt')">设为融化</button>
+        <button type="button" class="small-btn" onclick="applyAxisQuickAction('noMelt')">设为不融化</button>
+        <button type="button" class="small-btn danger" onclick="applyAxisQuickAction('resetDefault')">恢复该范围默认</button>
+      </div>
+
+      <div class="note" style="margin-top:12px;">
+        这里只控制最容易掉的短拐：班尼特Q攻击、宗室4、讨龙、磐岩4，以及该段是否融化。希诺宁、茜特菈莉、烬城/勇者、火神A4仍按全程覆盖处理。
+      </div>
     </div>
   </div>
 
   <script>
-    /*
-      火希茜班专用版说明：
-      - 玛薇卡输入“裸面板攻击力”：不进战斗、不吃班尼特、双火、宗室、讨龙、希诺宁、茜特菈莉时角色详情页显示的攻击力。
-      - 班尼特、双火、宗室、讨龙、希诺宁C2、专武被动等作为外部攻击/双暴拐追加。
-      - 希诺宁默认使用磐岩4件：火结晶后火伤+35%。
-      - 茜特菈莉默认使用烬城/勇者4件：火伤+40%。
-      - C3/C5自动修正实际技能等级；锁定的高命效果低命会灰掉且不计入。
-    */
-
     const SUBSTAT = {
       atkPct: 4.95,
       em: 19.8,
@@ -463,31 +696,16 @@
       critDmg: 6.6
     };
 
-    // Genshin通用天赋成长比例；班尼特Q表也用相同成长列。
-    const TALENT_SCALE = {
-      1: 0.5555555556,
-      2: 0.5972222222,
-      3: 0.6388888889,
-      4: 0.6944444444,
-      5: 0.7361111111,
-      6: 0.7777777778,
-      7: 0.8333333333,
-      8: 0.8888888889,
-      9: 0.9444444444,
-      10: 1.0,
-      11: 1.0555555556,
-      12: 1.1111111111,
-      13: 1.1805555556,
-      14: 1.25,
-      15: 1.3229166667
+    const TALENT = {
+      qSkill: [0, 444.8, 478.16, 511.52, 556, 589.36, 622.72, 667.2, 711.68, 756.16, 800.64, 845.12, 889.6, 945.2],
+      qSunfellFs: [0, 1.6, 1.72, 1.84, 2.0, 2.12, 2.24, 2.4, 2.56, 2.72, 2.88, 3.04, 3.2, 3.4],
+      qChargedFs: [0, 0.52, 0.56, 0.6, 0.66, 0.7, 0.75, 0.82, 0.88, 0.95, 1.02, 1.09, 1.16, 1.24],
+      eSprint: [0, 80.84, 87.42, 94, 103.4, 109.98, 117.5, 127.84, 138.18, 148.52, 159.8, 171.08, 182.36, 193.64],
+      eChargedCyclic: [0, 98.9, 106.95, 115, 126.5, 134.55, 143.75, 156.4, 169.05, 181.7, 195.5, 209.3, 223.1, 236.9],
+      eChargedFinal: [0, 137.6, 148.8, 160, 176, 187.2, 200, 217.6, 235.2, 252.8, 272, 291.2, 310.4, 329.6],
+      ePlunge: [0, 159.96, 172.98, 186, 204.6, 217.62, 232.5, 252.96, 273.42, 293.88, 316.2, 338.52, 360.84, 383.16]
     };
 
-    // 玛薇卡Q：以10级 800.6% / 2.9%为基准；C3后按实际等级查表。
-    // 如你有更精确数据，可直接改这里的两个10级基准。
-    const MAV_Q_LEVEL10_BASE_MULT = 800.6;
-    const MAV_Q_LEVEL10_FS_MULT = 2.9;
-
-    // 班尼特Q：Fandom表10级100.8%，13级119%，14级126%。
     const BEN_Q_RATIO_TABLE = {
       1: 56,
       2: 60.2,
@@ -513,23 +731,81 @@
       citlali: 0
     };
 
+    let axisRows = [];
+    let cacheTimer = null;
+    let isRestoringCache = false;
+    let compareBaseline = null;
+    let selectedAxisIndex = -1;
+
+    const CACHE_KEY = "mwkFullAxisCalc.v5";
+    const COMPARE_KEY = "mwkFullAxisCompare.v5";
+    const PRESET_KEY = "mwkArtifactPresets.v1";
+
+    function clamp(x, min, max) { return Math.max(min, Math.min(max, x)); }
+    function lv(n) { return clamp(Math.round(Number(n) || 1), 1, 13); }
+    function lv15(n) { return clamp(Math.round(Number(n) || 1), 1, 15); }
+    function num(id) { const el = document.getElementById(id); if (!el) return 0; const v = el.value; return v === "" ? 0 : Number(v); }
+    function val(id) { const el = document.getElementById(id); return el ? el.value : ""; }
+    function on(id) { const el = document.getElementById(id); return !!(el && !el.disabled && el.checked); }
+    function fmt(n) { if (!Number.isFinite(n)) return "-"; return Math.round(n).toLocaleString(); }
+    function fmt1(n) { return Number.isFinite(n) ? Number(n).toFixed(1) : "-"; }
+    function fmt2(n) { return Number.isFinite(n) ? Number(n).toFixed(4) : "-"; }
+    function pct(n) { return Number.isFinite(n) ? (n * 100).toFixed(2) + "%" : "-"; }
+    function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+
+    function talentArrayValue(arr, level) {
+      const l = clamp(Math.round(level), 1, 13);
+      return arr[l] ?? arr[10];
+    }
+
+    function effectiveQLevel(baseLevel) {
+      return lv(baseLevel + (state.mavuika >= 3 ? 3 : 0));
+    }
+
+    function effectiveELevel(baseLevel) {
+      return lv(baseLevel + (state.mavuika >= 5 ? 3 : 0));
+    }
+
+    function effectiveBennettQLevel(baseLevel) {
+      return lv15(baseLevel + (state.bennett >= 5 ? 3 : 0));
+    }
+
+    function bennettQRatio(level) {
+      const l = lv15(level);
+      return BEN_Q_RATIO_TABLE[l] ?? BEN_Q_RATIO_TABLE[10];
+    }
+
+    function refreshAutoTalentFields(c) {
+      const qEff = effectiveQLevel(c.mavQLevel);
+      const eEff = effectiveELevel(c.mavELevel);
+      const benEff = effectiveBennettQLevel(c.benQLevel);
+      document.getElementById("mavQEffectiveLevel").value = qEff;
+      document.getElementById("mavEEffectiveLevel").value = eEff;
+      document.getElementById("benQEffectiveLevel").value = benEff;
+      document.getElementById("benQRatio").value = bennettQRatio(benEff).toFixed(1);
+    }
+
     function setCons(name, n) {
       state[name] = n;
+      renderConsButtons();
+      updateLocks();
+      updateAxisMultipliersFromTalents(false);
+      calculate();
+      saveCache();
+    }
 
+    function renderConsButtons() {
       const map = {
         mavuika: "mavuikaButtons",
         bennett: "bennettButtons",
         xilonen: "xilonenButtons",
         citlali: "citlaliButtons"
       };
-
-      document.querySelectorAll("#" + map[name] + " .small-btn").forEach((btn, index) => {
-        btn.classList.toggle("active", index === n);
+      Object.keys(map).forEach(name => {
+        document.querySelectorAll("#" + map[name] + " .small-btn").forEach((btn, index) => {
+          btn.classList.toggle("active", index === state[name]);
+        });
       });
-
-      updateLocks();
-      calculate();
-      saveCache();
     }
 
     function updateLocks() {
@@ -538,93 +814,14 @@
         const need = Number(row.dataset.cons);
         const locked = state[character] < need;
         row.classList.toggle("locked", locked);
-
         const input = row.querySelector("input, select");
-        if (input) {
-          input.disabled = locked;
-        }
+        if (input) input.disabled = locked;
       });
-    }
-
-    function num(id) {
-      const v = document.getElementById(id).value;
-      if (v === "") return 0;
-      return Number(v);
-    }
-
-    function val(id) {
-      return document.getElementById(id).value;
-    }
-
-    function on(id) {
-      const el = document.getElementById(id);
-      return el && !el.disabled && el.checked;
-    }
-
-    function fmt(n) {
-      return Math.round(n).toLocaleString();
-    }
-
-    function fmt1(n) {
-      return Number(n).toFixed(1);
-    }
-
-    function fmt2(n) {
-      return Number(n).toFixed(4);
-    }
-
-    function pct(n) {
-      return (n * 100).toFixed(2) + "%";
-    }
-
-    function clamp(x, min, max) {
-      return Math.max(min, Math.min(max, x));
-    }
-
-    function talentScale(level) {
-      const lv = clamp(Math.round(level), 1, 15);
-      return TALENT_SCALE[lv] ?? TALENT_SCALE[10];
-    }
-
-    function effectiveTalentLevel(baseLevel, extra) {
-      return clamp(Math.round(baseLevel) + extra, 1, 15);
-    }
-
-    function mavuikaQBaseMultiplier(level) {
-      return MAV_Q_LEVEL10_BASE_MULT * talentScale(level);
-    }
-
-    function mavuikaFSMultiplier(level) {
-      return MAV_Q_LEVEL10_FS_MULT * talentScale(level);
-    }
-
-    function bennettQRatio(level) {
-      const lv = clamp(Math.round(level), 1, 15);
-      return BEN_Q_RATIO_TABLE[lv] ?? BEN_Q_RATIO_TABLE[10];
-    }
-
-    function refreshAutoTalentFields(c) {
-      const mavExtra = c.cons.mavuika >= 3 ? 3 : 0;
-      const mavEff = effectiveTalentLevel(c.mavQLevel, mavExtra);
-      document.getElementById("mavQEffectiveLevel").value = mavEff;
-      document.getElementById("mavQBaseMult").value = mavuikaQBaseMultiplier(mavEff).toFixed(1);
-      document.getElementById("mavFSMult").value = mavuikaFSMultiplier(mavEff).toFixed(3);
-
-      const benExtra = c.cons.bennett >= 5 ? 3 : 0;
-      const benEff = effectiveTalentLevel(c.benQLevel, benExtra);
-      document.getElementById("benQEffectiveLevel").value = benEff;
-      document.getElementById("benQRatio").value = bennettQRatio(benEff).toFixed(1);
     }
 
     function readConfig() {
       const c = {
-        cons: {
-          mavuika: state.mavuika,
-          bennett: state.bennett,
-          xilonen: state.xilonen,
-          citlali: state.citlali
-        },
-
+        cons: clone(state),
         mavLevel: num("mavLevel"),
         mavCharBaseAtk: num("mavCharBaseAtk"),
         mavWeaponBaseAtk: num("mavWeaponBaseAtk"),
@@ -634,12 +831,9 @@
         mavCritRate: num("mavCritRate"),
         mavCritDmg: num("mavCritDmg"),
         mavSelfDmg: num("mavSelfDmg"),
-
         mavQLevel: num("mavQLevel"),
-        mavFS: num("mavFS"),
-        mavC2Mult: num("mavC2Mult"),
-        mavOtherBaseDmg: num("mavOtherBaseDmg"),
-
+        mavELevel: num("mavELevel"),
+        mavFS: clamp(num("mavFS"), 0, 200),
         mavC1Atk: on("mavC1Atk"),
         mavC2BaseAtk: on("mavC2BaseAtk"),
         mavC2Extra: on("mavC2Extra"),
@@ -650,19 +844,16 @@
         mavA4Elapsed: num("mavA4Elapsed"),
         obsidian2: on("obsidian2"),
         obsidian4: on("obsidian4"),
-
         benActive: on("benActive"),
         benC1Active: on("benC1Active"),
         benC6Active: on("benC6Active"),
         benQLevel: num("benQLevel"),
         benCharBaseAtk: num("benCharBaseAtk"),
         benWeaponBaseAtk: num("benWeaponBaseAtk"),
-
         pyroResonance: on("pyroResonance"),
         noblesse: on("noblesse"),
         otherFlatAtk: num("otherFlatAtk"),
         otherAtkPct: num("otherAtkPct"),
-
         xiloActive: on("xiloActive"),
         xiloC2Active: on("xiloC2Active"),
         petraActive: on("petraActive"),
@@ -670,7 +861,6 @@
         xiloC2AtkPct: num("xiloC2AtkPct"),
         petraDmg: num("petraDmg"),
         xiloOtherDmg: num("xiloOtherDmg"),
-
         citActive: on("citActive"),
         citC1Active: on("citC1Active"),
         citC2Active: on("citC2Active"),
@@ -681,9 +871,10 @@
         citC2ResShred: num("citC2ResShred"),
         citC2EMBuff: num("citC2EMBuff"),
         citC1EMScale: num("citC1EMScale"),
+        citC1FirstHit: on("citC1FirstHit"),
+        citC1AxisHits: Math.max(0, Math.round(num("citC1AxisHits"))),
         scrollDmg: num("scrollDmg"),
         ttdsRefine: Number(val("ttdsRefine")),
-
         reaction: val("reaction"),
         reactionBonus: num("reactionBonus"),
         enemyLevel: num("enemyLevel"),
@@ -692,17 +883,17 @@
         defIgnore: num("defIgnore"),
         targetDmgReduction: num("targetDmgReduction"),
         manualDef: on("manualDef"),
-        manualDefMult: num("manualDefMult")
+        manualDefMult: num("manualDefMult"),
+        c6RingActive: on("c6RingActive"),
+        c6RingHits: Math.max(0, Math.round(num("c6RingHits"))),
+        c6RingMult: num("c6RingMult")
       };
 
       refreshAutoTalentFields(c);
-
       c.mavQEffectiveLevel = num("mavQEffectiveLevel");
-      c.mavQBaseMult = num("mavQBaseMult");
-      c.mavFSMult = num("mavFSMult");
+      c.mavEEffectiveLevel = num("mavEEffectiveLevel");
       c.benQEffectiveLevel = num("benQEffectiveLevel");
       c.benQRatio = num("benQRatio");
-
       return c;
     }
 
@@ -731,43 +922,30 @@
 
     function reactionMultiplier(type, em, reactionBonusPercent) {
       if (type === "none") return 1;
-
       let base = 1;
       if (type === "melt") base = 2.0;
       if (type === "vape") base = 1.5;
-
       const emBonus = 2.78 * em / (em + 1400);
       const reactionBonus = reactionBonusPercent / 100;
-
       return base * (1 + emBonus + reactionBonus);
     }
 
     function calcMavuikaBaseAtk(c) {
       let baseAtk = c.mavCharBaseAtk + c.mavWeaponBaseAtk;
-
-      if (c.cons.mavuika >= 2 && c.mavC2BaseAtk) {
-        baseAtk += 200;
-      }
-
+      if (c.cons.mavuika >= 2 && c.mavC2BaseAtk) baseAtk += 200;
       return baseAtk;
     }
 
     function calcA4Bonus(c) {
       if (!c.mavA4Active) return 0;
-
       const initial = Math.min(c.mavFS * 0.2, 40);
-
-      if (c.cons.mavuika >= 4 && c.mavC4A4) {
-        return initial + 10;
-      }
-
+      if (c.cons.mavuika >= 4 && c.mavC4A4) return initial + 10;
       const remain = Math.max(0, 1 - c.mavA4Elapsed / 20);
       return initial * remain;
     }
 
-    function collectBuffs(c) {
+    function collectBuffs(c, axisBuffs = null) {
       const baseAtk = calcMavuikaBaseAtk(c);
-
       let atkPctBuff = 0;
       let flatAtkBuff = 0;
       let emBuff = 0;
@@ -776,13 +954,10 @@
       let dmgBonus = 0;
       let resShred = 0;
       let defReduction = c.otherDefReduction;
-      let additiveBaseDmg = c.mavOtherBaseDmg;
-
       const sources = [];
 
-      function addSource(name, type, value) {
-        sources.push({ name, type, value });
-      }
+      function addSource(name, type, value) { sources.push({ name, type, value }); }
+      function useBuff(key) { return !axisBuffs || axisBuffs[key] !== false; }
 
       dmgBonus += c.mavSelfDmg;
       addSource("玛薇卡裸面板", "火伤/自身增伤", c.mavSelfDmg + "%");
@@ -825,15 +1000,13 @@
         addSource("玛薇卡C6", "防御降低", "20%");
       }
 
-      if (c.benActive) {
+      if (c.benActive && useBuff("bennett")) {
         const benBaseAtk = c.benCharBaseAtk + c.benWeaponBaseAtk;
         let benFlat = benBaseAtk * c.benQRatio / 100;
-
         if (c.cons.bennett >= 1 && c.benC1Active) {
           benFlat += benBaseAtk * 0.2;
           addSource("班尼特C1", "额外固定攻击", fmt(benBaseAtk * 0.2));
         }
-
         flatAtkBuff += benFlat;
         addSource("班尼特Q Lv." + c.benQEffectiveLevel, "固定攻击", fmt(benFlat));
 
@@ -848,7 +1021,7 @@
         addSource("双火共鸣", "攻击%", "25%");
       }
 
-      if (c.noblesse) {
+      if (c.noblesse && useBuff("noblesse")) {
         atkPctBuff += 20;
         addSource("宗室4件", "攻击%", "20%");
       }
@@ -873,7 +1046,7 @@
         addSource("希诺宁C2", "攻击%", c.xiloC2AtkPct + "%");
       }
 
-      if (c.petraActive) {
+      if (c.petraActive && useBuff("petra")) {
         dmgBonus += c.petraDmg;
         addSource("希诺宁磐岩4", "火伤", c.petraDmg + "%");
       }
@@ -888,12 +1061,6 @@
         addSource("茜特菈莉天赋", "火抗降低", c.citResShred + "%");
       }
 
-      if (c.cons.citlali >= 1 && c.citC1Active) {
-        const citC1Dmg = c.citEM * c.citC1EMScale;
-        additiveBaseDmg += citC1Dmg;
-        addSource("茜特菈莉C1", "基础伤害加成", fmt(citC1Dmg));
-      }
-
       if (c.cons.citlali >= 2 && c.citC2Active) {
         emBuff += c.citC2EMBuff;
         resShred += c.citC2ResShred;
@@ -901,90 +1068,31 @@
         addSource("茜特菈莉C2", "额外火抗降低", c.citC2ResShred + "%");
       }
 
-      if (c.ttdsActive) {
+      if (c.ttdsActive && useBuff("ttds")) {
         atkPctBuff += c.ttdsRefine;
         addSource("讨龙", "攻击%", c.ttdsRefine + "%");
       }
 
       if (c.scrollActive) {
         dmgBonus += c.scrollDmg;
-        addSource("茜特菈莉烬城4", "火伤", c.scrollDmg + "%");
+        addSource("茜特菈莉烬城/勇者4", "火伤", c.scrollDmg + "%");
       }
 
-      return {
-        baseAtk,
-        atkPctBuff,
-        flatAtkBuff,
-        emBuff,
-        critRateBuff,
-        critDmgBuff,
-        dmgBonus,
-        resShred,
-        defReduction,
-        additiveBaseDmg,
-        sources
-      };
+      return { baseAtk, atkPctBuff, flatAtkBuff, emBuff, critRateBuff, critDmgBuff, dmgBonus, resShred, defReduction, sources };
     }
 
-    function buildPanel(c) {
-      const buffs = collectBuffs(c);
-
-      const finalAtk =
-        c.mavPanelAtk +
-        buffs.baseAtk * buffs.atkPctBuff / 100 +
-        buffs.flatAtkBuff;
-
-      const finalEM =
-        c.mavEM +
-        buffs.emBuff;
-
-      const finalCR =
-        c.mavCritRate +
-        buffs.critRateBuff;
-
-      const finalCD =
-        c.mavCritDmg +
-        buffs.critDmgBuff;
-
-      const qBaseDmg =
-        finalAtk * c.mavQBaseMult / 100;
-
-      const fsDmg =
-        finalAtk * c.mavFS * c.mavFSMult / 100;
-
-      const c2Dmg =
-        c.cons.mavuika >= 2 && c.mavC2Extra
-          ? finalAtk * c.mavC2Mult / 100
-          : 0;
-
-      const citC1Dmg =
-        c.cons.citlali >= 1 && c.citC1Active
-          ? c.citEM * c.citC1EMScale
-          : 0;
-
-      const totalBaseDmg =
-        qBaseDmg +
-        fsDmg +
-        c2Dmg +
-        citC1Dmg +
-        c.mavOtherBaseDmg;
-
-      const finalRes =
-        c.enemyRes - buffs.resShred;
-
-      const resMult =
-        resistanceMultiplier(finalRes);
-
-      const defMult =
-        c.manualDef
-          ? c.manualDefMult
-          : defenseMultiplier(c.mavLevel, c.enemyLevel, buffs.defReduction, c.defIgnore);
-
-      const reactionMult =
-        reactionMultiplier(c.reaction, finalEM, c.reactionBonus);
-
-      const dmgBonusMult =
-        1 + buffs.dmgBonus / 100 - c.targetDmgReduction / 100;
+    function buildPanel(c, axisBuffs = null) {
+      const buffs = collectBuffs(c, axisBuffs);
+      const finalAtk = c.mavPanelAtk + buffs.baseAtk * buffs.atkPctBuff / 100 + buffs.flatAtkBuff;
+      const finalEM = c.mavEM + buffs.emBuff;
+      const finalCR = c.mavCritRate + buffs.critRateBuff;
+      const finalCD = c.mavCritDmg + buffs.critDmgBuff;
+      const finalRes = c.enemyRes - buffs.resShred;
+      const resMult = resistanceMultiplier(finalRes);
+      const defMult = c.manualDef ? c.manualDefMult : defenseMultiplier(c.mavLevel, c.enemyLevel, buffs.defReduction, c.defIgnore);
+      const reactionMult = reactionMultiplier(c.reaction, finalEM, c.reactionBonus);
+      const dmgBonusMult = Math.max(0, 1 + buffs.dmgBonus / 100 - c.targetDmgReduction / 100);
+      const citC1Base = c.cons.citlali >= 1 && c.citC1Active ? c.citEM * c.citC1EMScale : 0;
 
       return {
         baseAtk: buffs.baseAtk,
@@ -1001,264 +1109,534 @@
         defReduction: buffs.defReduction,
         defMult,
         reactionMult,
-        qBaseDmg,
-        fsDmg,
-        c2Dmg,
-        citC1Dmg,
-        totalBaseDmg,
         dmgBonusMult,
+        citC1Base,
         sources: buffs.sources
       };
     }
 
-    function calcDamage(p, mode) {
-      return (
-        p.totalBaseDmg *
+    function firstHitBase(c, p) {
+      const qLv = c.mavQEffectiveLevel;
+      const qBaseMult = talentArrayValue(TALENT.qSkill, qLv);
+      const fsMult = talentArrayValue(TALENT.qSunfellFs, qLv) * c.mavFS;
+      const c2Mult = c.cons.mavuika >= 2 && c.mavC2Extra ? 120 : 0;
+      const mult = qBaseMult + fsMult + c2Mult;
+      const citC1 = c.citC1FirstHit ? p.citC1Base : 0;
+      return { mult, qBaseMult, fsMult, c2Mult, citC1, baseDamage: p.finalAtk * mult / 100 + citC1 };
+    }
+
+    function damageFromBase(baseDamage, p, c, mode, reactionOn) {
+      return baseDamage *
         p.dmgBonusMult *
         critMultiplier(p.finalCR, p.finalCD, mode) *
         p.defMult *
         p.resMult *
-        p.reactionMult
-      );
+        (reactionOn ? p.reactionMult : 1);
     }
 
-    function clone(obj) {
-      return JSON.parse(JSON.stringify(obj));
+    function calcFirst(c) {
+      const p = buildPanel(c);
+      const f = firstHitBase(c, p);
+      return {
+        panel: p,
+        first: f,
+        expected: damageFromBase(f.baseDamage, p, c, "expected", c.reaction !== "none"),
+        crit: damageFromBase(f.baseDamage, p, c, "crit", c.reaction !== "none"),
+        nonCrit: damageFromBase(f.baseDamage, p, c, "nonCrit", c.reaction !== "none")
+      };
     }
 
-    function calcExpected(c) {
-      return calcDamage(buildPanel(c), "expected");
+
+    function defaultShortBuffs() {
+      return { bennett: true, noblesse: true, ttds: true, petra: true };
     }
 
-    function calcMarginal(c) {
-      const d0 = calcExpected(c);
+    function normalizeShortBuffs(buffs) {
+      const base = defaultShortBuffs();
+      if (!buffs || typeof buffs !== "object") return base;
+      return {
+        bennett: typeof buffs.bennett === "boolean" ? buffs.bennett : true,
+        noblesse: typeof buffs.noblesse === "boolean" ? buffs.noblesse : true,
+        ttds: typeof buffs.ttds === "boolean" ? buffs.ttds : true,
+        petra: typeof buffs.petra === "boolean" ? buffs.petra : true
+      };
+    }
 
-      if (d0 <= 0 || !Number.isFinite(d0)) {
-        return [];
+    function isShortBuffsFull(buffs) {
+      const b = normalizeShortBuffs(buffs);
+      return b.bennett && b.noblesse && b.ttds && b.petra;
+    }
+
+    function rowDefaultForIndex(index) {
+      const defs = defaultAxisRows("sixMelt");
+      return defs[index] ? clone(defs[index]) : null;
+    }
+
+    function defaultAxisRows(kind) {
+      const c = readConfig();
+      const eLv = c.mavEEffectiveLevel;
+      const qLv = c.mavQEffectiveLevel;
+      const z = talentArrayValue(TALENT.eChargedCyclic, eLv);
+      const q = talentArrayValue(TALENT.qSkill, qLv);
+      const s = talentArrayValue(TALENT.eSprint, eLv);
+      const p = talentArrayValue(TALENT.eChargedFinal, eLv);
+      const meltDefault = kind === "allMelt";
+      const noMelt = kind === "noMelt";
+
+      // qfs 表示“是否吃 Q 的战意追加倍率”，不是普通增伤区。
+      // 默认轴：Z1 在 Q 前，不吃；Q 本体吃；Q 后所有 z/Z 重击循环吃；P 是重击终结，也吃；s 闪避不吃。
+      const rows = [
+        { name: "Z1", type: "charged", mult: z, qfs: false, enabled: true, melt: !noMelt && (kind === "sixMelt" || meltDefault), extra: 0 },
+        { name: "Q", type: "burst", mult: q, qfs: true, enabled: true, melt: !noMelt && (kind === "sixMelt" || meltDefault), extra: 0 },
+        { name: "Z2", type: "charged", mult: z, qfs: true, enabled: true, melt: !noMelt && (kind === "sixMelt" || meltDefault), extra: 0 },
+        { name: "z3", type: "charged", mult: z, qfs: true, enabled: true, melt: meltDefault && !noMelt, extra: 0 },
+        { name: "z4", type: "charged", mult: z, qfs: true, enabled: true, melt: meltDefault && !noMelt, extra: 0 },
+        { name: "s1", type: "sprint", mult: s, qfs: false, enabled: true, melt: meltDefault && !noMelt, extra: 0 },
+        { name: "z5", type: "charged", mult: z, qfs: true, enabled: true, melt: meltDefault && !noMelt, extra: 0 },
+        { name: "P1", type: "chargedFinal", mult: p, qfs: true, enabled: true, melt: !noMelt && (kind === "sixMelt" || meltDefault), extra: 0 },
+        { name: "s2", type: "sprint", mult: s, qfs: false, enabled: true, melt: meltDefault && !noMelt, extra: 0 },
+        { name: "z6", type: "charged", mult: z, qfs: true, enabled: true, melt: meltDefault && !noMelt, extra: 0 },
+        { name: "P2", type: "chargedFinal", mult: p, qfs: true, enabled: true, melt: !noMelt && (kind === "sixMelt" || meltDefault), extra: 0 },
+        { name: "s3", type: "sprint", mult: s, qfs: false, enabled: true, melt: meltDefault && !noMelt, extra: 0 },
+        { name: "z7", type: "charged", mult: z, qfs: true, enabled: true, melt: meltDefault && !noMelt, extra: 0 },
+        { name: "P3", type: "chargedFinal", mult: p, qfs: true, enabled: true, melt: !noMelt && (kind === "sixMelt" || meltDefault), extra: 0 }
+      ];
+      return rows;
+    }
+
+    function defaultQfsForRow(row, index) {
+      if (!row) return false;
+      if (row.type === "burst") return true;
+      if (row.type === "charged" || row.type === "chargedFinal") {
+        return index > 0 && String(row.name || "").toUpperCase() !== "Z1";
+      }
+      return false;
+    }
+
+    function normalizeAxisRows(rows) {
+      if (!Array.isArray(rows) || rows.length === 0) return defaultAxisRows("sixMelt").map(r => ({ ...r, buffs: defaultShortBuffs() }));
+      return rows.map((row, index) => ({
+        name: row.name ?? "自定义",
+        type: row.type ?? "custom",
+        mult: Number(row.mult) || 0,
+        qfs: typeof row.qfs === "boolean" ? row.qfs : defaultQfsForRow(row, index),
+        enabled: typeof row.enabled === "boolean" ? row.enabled : true,
+        melt: typeof row.melt === "boolean" ? row.melt : false,
+        extra: Number(row.extra) || 0,
+        buffs: normalizeShortBuffs(row.buffs)
+      }));
+    }
+
+    function loadAxisPreset(kind) {
+      axisRows = normalizeAxisRows(defaultAxisRows(kind || "sixMelt"));
+      renderAxisTable();
+      calculate();
+      saveCache();
+    }
+
+    function renderAxisTable() {
+      const box = document.getElementById("axisButtons");
+      if (!box) return;
+      box.innerHTML = "";
+      axisRows.forEach((r, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "axis-seg-btn";
+        if (r.melt) btn.classList.add("melt");
+        if (!r.enabled) btn.classList.add("disabled");
+        if (isAxisRowModified(r, i)) btn.classList.add("modified");
+        btn.textContent = r.name || ("#" + (i + 1));
+        btn.title = axisRowStatusText(r);
+        btn.onclick = () => openAxisModal(i);
+        box.appendChild(btn);
+      });
+      renderAxisExceptionSummary();
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"]/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[s]));
+    }
+
+    function isAxisRowModified(row, index) {
+      const def = rowDefaultForIndex(index);
+      if (!def) return !isShortBuffsFull(row.buffs) || row.melt;
+      const b = normalizeShortBuffs(row.buffs);
+      const db = normalizeShortBuffs(def.buffs);
+      return row.melt !== def.melt || b.bennett !== db.bennett || b.noblesse !== db.noblesse || b.ttds !== db.ttds || b.petra !== db.petra;
+    }
+
+    function axisRowStatusText(row) {
+      const b = normalizeShortBuffs(row.buffs);
+      const drops = [];
+      if (!b.bennett) drops.push("掉班");
+      if (!b.noblesse) drops.push("掉宗室");
+      if (!b.ttds) drops.push("掉讨龙");
+      if (!b.petra) drops.push("掉磐岩");
+      return (row.melt ? "融化" : "不融化") + "；" + (drops.length ? drops.join("、") : "短拐吃满");
+    }
+
+    function renderAxisExceptionSummary() {
+      const el = document.getElementById("axisExceptionSummary");
+      if (!el) return;
+      const notes = [];
+      axisRows.forEach((row, i) => {
+        if (!isAxisRowModified(row, i)) return;
+        const def = rowDefaultForIndex(i);
+        const b = normalizeShortBuffs(row.buffs);
+        const drops = [];
+        if (!b.bennett) drops.push("班");
+        if (!b.noblesse) drops.push("宗室");
+        if (!b.ttds) drops.push("讨龙");
+        if (!b.petra) drops.push("磐岩");
+        const parts = [];
+        if (drops.length) parts.push("掉" + drops.join("/"));
+        if (def && row.melt !== def.melt) parts.push(row.melt ? "改融化" : "不融化");
+        if (parts.length) notes.push((row.name || ("#" + (i + 1))) + "：" + parts.join("，"));
+      });
+      el.textContent = notes.length ? "当前异常：" + notes.join("；") : "当前异常：无，默认全轴吃满短拐。";
+    }
+
+    function openAxisModal(index) {
+      selectedAxisIndex = index;
+      const modal = document.getElementById("axisModal");
+      if (!modal || !axisRows[index]) return;
+      document.querySelectorAll("input[name='axisScope']").forEach(r => { r.checked = r.value === "current"; });
+      updateAxisModalView();
+      modal.classList.add("show");
+    }
+
+    function closeAxisModal() {
+      const modal = document.getElementById("axisModal");
+      if (modal) modal.classList.remove("show");
+      selectedAxisIndex = -1;
+    }
+
+    function closeAxisModalByMask(event) {
+      if (event.target && event.target.id === "axisModal") closeAxisModal();
+    }
+
+    function updateAxisModalView() {
+      const row = axisRows[selectedAxisIndex];
+      if (!row) return;
+      const title = document.getElementById("axisModalTitle");
+      const status = document.getElementById("axisModalStatus");
+      if (title) title.textContent = "编辑 " + row.name + "｜" + axisTypeLabel(row.type);
+      if (status) {
+        const b = normalizeShortBuffs(row.buffs);
+        status.innerHTML =
+          "当前段：<strong>" + escapeHtml(row.name) + "</strong>　" +
+          "融化：<strong>" + (row.melt ? "吃" : "不吃") + "</strong><br>" +
+          "班尼特：<strong>" + (b.bennett ? "吃" : "不吃") + "</strong>　" +
+          "宗室：<strong>" + (b.noblesse ? "吃" : "不吃") + "</strong>　" +
+          "讨龙：<strong>" + (b.ttds ? "吃" : "不吃") + "</strong>　" +
+          "磐岩：<strong>" + (b.petra ? "吃" : "不吃") + "</strong>";
+      }
+    }
+
+    function axisTypeLabel(type) {
+      if (type === "burst") return "Q首刀";
+      if (type === "charged") return "重击循环";
+      if (type === "chargedFinal") return "重击终结";
+      if (type === "sprint") return "闪避s";
+      if (type === "plunge") return "下落/跳劈";
+      return "手动";
+    }
+
+    function getAxisScope() {
+      const checked = document.querySelector("input[name='axisScope']:checked");
+      return checked ? checked.value : "current";
+    }
+
+    function targetAxisIndices(scope) {
+      if (selectedAxisIndex < 0 || !axisRows[selectedAxisIndex]) return [];
+      if (scope === "after") {
+        return axisRows.map((_, i) => i).filter(i => i >= selectedAxisIndex);
+      }
+      if (scope === "sameType") {
+        const type = axisRows[selectedAxisIndex].type;
+        return axisRows.map((r, i) => r.type === type ? i : -1).filter(i => i >= 0);
+      }
+      return [selectedAxisIndex];
+    }
+
+    function applyAxisQuickAction(action) {
+      const scope = getAxisScope();
+      const targets = targetAxisIndices(scope);
+      const defaults = defaultAxisRows("sixMelt");
+      targets.forEach(i => {
+        const row = axisRows[i];
+        if (!row) return;
+        row.buffs = normalizeShortBuffs(row.buffs);
+        if (action === "full") {
+          row.buffs = defaultShortBuffs();
+        } else if (action === "dropBennett") {
+          row.buffs.bennett = false;
+        } else if (action === "dropNoblesse") {
+          row.buffs.noblesse = false;
+        } else if (action === "dropTTDS") {
+          row.buffs.ttds = false;
+        } else if (action === "dropPetra") {
+          row.buffs.petra = false;
+        } else if (action === "dropShort") {
+          row.buffs = { bennett: false, noblesse: false, ttds: false, petra: false };
+        } else if (action === "melt") {
+          row.melt = true;
+        } else if (action === "noMelt") {
+          row.melt = false;
+        } else if (action === "resetDefault") {
+          if (defaults[i]) {
+            const d = defaults[i];
+            row.name = d.name;
+            row.type = d.type;
+            row.mult = d.mult;
+            row.qfs = d.qfs;
+            row.enabled = d.enabled;
+            row.melt = d.melt;
+            row.extra = d.extra;
+            row.buffs = defaultShortBuffs();
+          } else {
+            row.buffs = defaultShortBuffs();
+          }
+        }
+      });
+      renderAxisTable();
+      calculate();
+      scheduleSaveCache();
+      updateAxisModalView();
+    }
+
+    function resetAxisBuffSimulation() {
+      axisRows = normalizeAxisRows(axisRows);
+      const defaults = defaultAxisRows("sixMelt");
+      axisRows.forEach((row, i) => {
+        row.buffs = defaultShortBuffs();
+        if (defaults[i]) row.melt = defaults[i].melt;
+      });
+      renderAxisTable();
+      calculate();
+      saveCache(true);
+    }
+
+    function defaultMultiplierByType(type, c) {
+      const eLv = c.mavEEffectiveLevel;
+      const qLv = c.mavQEffectiveLevel;
+      if (type === "burst") return talentArrayValue(TALENT.qSkill, qLv);
+      if (type === "charged") return talentArrayValue(TALENT.eChargedCyclic, eLv);
+      if (type === "chargedFinal") return talentArrayValue(TALENT.eChargedFinal, eLv);
+      if (type === "sprint") return talentArrayValue(TALENT.eSprint, eLv);
+      if (type === "plunge") return talentArrayValue(TALENT.ePlunge, eLv);
+      return 100;
+    }
+
+    function updateAxisMultipliersFromTalents(forceAll) {
+      const c = readConfig();
+      axisRows.forEach(r => {
+        if (forceAll || r.type !== "custom") {
+          r.mult = defaultMultiplierByType(r.type, c);
+        }
+      });
+      renderAxisTable();
+    }
+
+    function axisRowQFsBonus(row, c) {
+      if (!row.qfs) return 0;
+      if (row.type === "burst") return talentArrayValue(TALENT.qSunfellFs, c.mavQEffectiveLevel) * c.mavFS;
+      if (row.type === "charged" || row.type === "chargedFinal") return talentArrayValue(TALENT.qChargedFs, c.mavQEffectiveLevel) * c.mavFS;
+      return 0;
+    }
+
+    function axisRowTotalMultiplier(row, c) {
+      let mult = Number(row.mult) || 0;
+      mult += axisRowQFsBonus(row, c);
+
+      if (row.type === "burst") {
+        if (c.cons.mavuika >= 2 && c.mavC2Extra) mult += 120;
       }
 
+      if (row.type === "charged" || row.type === "chargedFinal") {
+        if (c.cons.mavuika >= 2 && c.mavC2Extra) mult += 90;
+      }
+
+      return mult;
+    }
+
+    function calcAxis(c) {
+      const p = buildPanel(c);
+      let normalExpected = 0;
+      let normalCrit = 0;
+      let normalNonCrit = 0;
+      let normalBaseMult = 0;
+      let meltCount = 0;
+      let citC1Left = c.cons.citlali >= 1 && c.citC1Active ? c.citC1AxisHits : 0;
+      const rows = [];
+
+      axisRows.forEach(row => {
+        row.buffs = normalizeShortBuffs(row.buffs);
+        if (!row.enabled) return;
+        const rowPanel = buildPanel(c, row.buffs);
+        const mult = axisRowTotalMultiplier(row, c);
+        const qfsBonus = axisRowQFsBonus(row, c);
+        const citExtra = citC1Left > 0 ? rowPanel.citC1Base : 0;
+        if (citC1Left > 0) citC1Left -= 1;
+        const baseDamage = rowPanel.finalAtk * mult / 100 + (Number(row.extra) || 0) + citExtra;
+        const reactionOn = row.melt && c.reaction !== "none";
+        const expected = damageFromBase(baseDamage, rowPanel, c, "expected", reactionOn);
+        const crit = damageFromBase(baseDamage, rowPanel, c, "crit", reactionOn);
+        const nonCrit = damageFromBase(baseDamage, rowPanel, c, "nonCrit", reactionOn);
+        normalExpected += expected;
+        normalCrit += crit;
+        normalNonCrit += nonCrit;
+        normalBaseMult += mult;
+        if (reactionOn) meltCount += 1;
+        rows.push({ name: row.name, mult, qfs: !!row.qfs, qfsBonus, reactionOn, buffs: clone(row.buffs), expected, crit, nonCrit });
+      });
+
+      let c6Base = 0;
+      let c6Expected = 0;
+      let c6Crit = 0;
+      let c6NonCrit = 0;
+      if (c.cons.mavuika >= 6 && c.c6RingActive && c.c6RingHits > 0) {
+        c6Base = p.finalAtk * (c.c6RingMult * c.c6RingHits) / 100;
+        c6Expected = damageFromBase(c6Base, p, c, "expected", false);
+        c6Crit = damageFromBase(c6Base, p, c, "crit", false);
+        c6NonCrit = damageFromBase(c6Base, p, c, "nonCrit", false);
+        rows.push({ name: "C6天火×" + c.c6RingHits, mult: c.c6RingMult * c.c6RingHits, qfs: false, qfsBonus: 0, reactionOn: false, expected: c6Expected, crit: c6Crit, nonCrit: c6NonCrit });
+      }
+
+      return {
+        panel: p,
+        rows,
+        normalExpected,
+        normalCrit,
+        normalNonCrit,
+        c6Expected,
+        c6Crit,
+        c6NonCrit,
+        expected: normalExpected + c6Expected,
+        crit: normalCrit + c6Crit,
+        nonCrit: normalNonCrit + c6NonCrit,
+        meltCount,
+        totalMult: normalBaseMult + (c.cons.mavuika >= 6 && c.c6RingActive ? c.c6RingMult * c.c6RingHits : 0)
+      };
+    }
+
+    function calcMarginal(c, mode) {
+      const d0 = mode === "axis" ? calcAxis(c).expected : calcFirst(c).expected;
+      if (d0 <= 0 || !Number.isFinite(d0)) return [];
       const cases = [];
 
       const atkCase = clone(c);
       atkCase.otherAtkPct += SUBSTAT.atkPct;
-      cases.push({
-        name: "攻击%",
-        add: "+" + SUBSTAT.atkPct + "%",
-        gain: calcExpected(atkCase) / d0 - 1
-      });
+      cases.push({ name: "攻击%", add: "+" + SUBSTAT.atkPct + "%", gain: (mode === "axis" ? calcAxis(atkCase).expected : calcFirst(atkCase).expected) / d0 - 1 });
 
       const emCase = clone(c);
       emCase.mavEM += SUBSTAT.em;
-      cases.push({
-        name: "元素精通",
-        add: "+" + SUBSTAT.em,
-        gain: calcExpected(emCase) / d0 - 1
-      });
+      cases.push({ name: "元素精通", add: "+" + SUBSTAT.em, gain: (mode === "axis" ? calcAxis(emCase).expected : calcFirst(emCase).expected) / d0 - 1 });
 
       const crCase = clone(c);
       crCase.mavCritRate += SUBSTAT.critRate;
-      cases.push({
-        name: "暴击率",
-        add: "+" + SUBSTAT.critRate + "%",
-        gain: calcExpected(crCase) / d0 - 1
-      });
+      cases.push({ name: "暴击率", add: "+" + SUBSTAT.critRate + "%", gain: (mode === "axis" ? calcAxis(crCase).expected : calcFirst(crCase).expected) / d0 - 1 });
 
       const cdCase = clone(c);
       cdCase.mavCritDmg += SUBSTAT.critDmg;
-      cases.push({
-        name: "暴击伤害",
-        add: "+" + SUBSTAT.critDmg + "%",
-        gain: calcExpected(cdCase) / d0 - 1
-      });
+      cases.push({ name: "暴击伤害", add: "+" + SUBSTAT.critDmg + "%", gain: (mode === "axis" ? calcAxis(cdCase).expected : calcFirst(cdCase).expected) / d0 - 1 });
 
       return cases.sort((a, b) => b.gain - a.gain);
     }
 
     function calculate() {
       updateLocks();
-
       const c = readConfig();
-      const p = buildPanel(c);
+      const first = calcFirst(c);
+      const p = first.panel;
+      const axis = calcAxis(c);
 
-      const expected = calcDamage(p, "expected");
-      const crit = calcDamage(p, "crit");
-      const nonCrit = calcDamage(p, "nonCrit");
-
-      document.getElementById("consSummary").textContent =
-        "玛C" + c.cons.mavuika +
-        " / 班C" + c.cons.bennett +
-        " / 希C" + c.cons.xilonen +
-        " / 茜C" + c.cons.citlali;
-
+      document.getElementById("consSummary").textContent = consText(c.cons);
       document.getElementById("outBaseAtk").textContent = fmt(p.baseAtk);
       document.getElementById("outAtk").textContent = fmt(p.finalAtk);
       document.getElementById("outEM").textContent = fmt(p.finalEM);
       document.getElementById("outCR").textContent = fmt1(p.finalCR) + "%";
       document.getElementById("outCD").textContent = fmt1(p.finalCD) + "%";
-
-      document.getElementById("outAtkPctBuff").textContent = fmt1(p.atkPctBuff) + "%";
-      document.getElementById("outFlatAtkBuff").textContent = fmt(p.flatAtkBuff);
       document.getElementById("outDmgBonus").textContent = fmt1(p.dmgBonus) + "%";
-      document.getElementById("outResShred").textContent = fmt1(p.resShred) + "%";
-      document.getElementById("outFinalRes").textContent = fmt1(p.finalRes) + "%";
       document.getElementById("outResMult").textContent = fmt2(p.resMult);
-      document.getElementById("outDefReduction").textContent = fmt1(p.defReduction) + "%";
       document.getElementById("outDefMult").textContent = fmt2(p.defMult);
       document.getElementById("outReactionMult").textContent = fmt2(p.reactionMult);
-
-      document.getElementById("outQBaseDmg").textContent = fmt(p.qBaseDmg);
-      document.getElementById("outFSDmg").textContent = fmt(p.fsDmg);
-      document.getElementById("outC2Dmg").textContent = fmt(p.c2Dmg);
-      document.getElementById("outCitC1Dmg").textContent = fmt(p.citC1Dmg);
-      document.getElementById("outBaseDmg").textContent = fmt(p.totalBaseDmg);
-
-      document.getElementById("outExpected").textContent = fmt(expected);
-      document.getElementById("outCrit").textContent = fmt(crit);
-      document.getElementById("outNonCrit").textContent = fmt(nonCrit);
-
-      const noCritNoReaction =
-        p.totalBaseDmg *
-        p.dmgBonusMult *
-        p.resMult *
-        p.defMult;
+      document.getElementById("outQTotalMult").textContent = fmt1(first.first.mult) + "%";
+      document.getElementById("outBaseDmg").textContent = fmt(first.first.baseDamage);
+      document.getElementById("outExpected").textContent = fmt(first.expected);
+      document.getElementById("outCrit").textContent = fmt(first.crit);
+      document.getElementById("outNonCrit").textContent = fmt(first.nonCrit);
 
       document.getElementById("outProcess").innerHTML =
-        noCritNoReaction.toFixed(2) + " = " +
-        "(" +
-        p.finalAtk.toFixed(2) + "攻击 × " + (c.mavQBaseMult / 100).toFixed(3) + "Q倍率 + " +
-        p.fsDmg.toFixed(3) + "战意基础伤害 + " +
-        p.c2Dmg.toFixed(3) + "玛C2基础伤害 + " +
-        p.citC1Dmg.toFixed(3) + "茜C1基础伤害 + " +
-        c.mavOtherBaseDmg.toFixed(3) + "其他基础伤害" +
-        ") × " +
-        p.dmgBonusMult.toFixed(3) + "增伤 × " +
-        p.resMult.toFixed(3) + "抗性 × " +
-        p.defMult.toFixed(3) + "防御。<br>" +
-        "完整期望伤害再乘：暴击期望 × 反应乘区。";
+        "首刀基础伤害 = 攻击 " + p.finalAtk.toFixed(2) + " × (Q " + first.first.qBaseMult.toFixed(2) + "% + 战意 " + first.first.fsMult.toFixed(2) + "% + C2 " + first.first.c2Mult.toFixed(2) + "%) + 茜C1 " + first.first.citC1.toFixed(0) + " = " + first.first.baseDamage.toFixed(2) + "。<br>" +
+        "最终再乘：增伤 " + p.dmgBonusMult.toFixed(3) + " × 暴击 × 防御 " + p.defMult.toFixed(3) + " × 抗性 " + p.resMult.toFixed(3) + " × 反应 " + p.reactionMult.toFixed(3) + "。";
 
-      const marginal = calcMarginal(c);
-      const marginalTable = document.getElementById("marginalTable");
-      marginalTable.innerHTML = "";
+      renderMarginal("marginalTable", calcMarginal(c, "first"));
+      const firstBest = calcMarginal(c, "first")[0];
+      document.getElementById("note").textContent = firstBest ? "当前首刀期望下，最优先补：" + firstBest.name + "。" : "请先填写裸面板。";
 
-      if (marginal.length === 0) {
-        document.getElementById("note").innerHTML =
-          "请先填写玛薇卡裸面板攻击、精通、暴击率、暴击伤害、火伤。";
-      } else {
-        for (const r of marginal) {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${r.name}</td>
-            <td>${r.add}</td>
-            <td>${pct(r.gain)}</td>
-          `;
-          marginalTable.appendChild(tr);
-        }
+      document.getElementById("axisExpected").textContent = fmt(axis.expected);
+      document.getElementById("axisCrit").textContent = fmt(axis.crit);
+      document.getElementById("axisNonCrit").textContent = fmt(axis.nonCrit);
+      document.getElementById("axisMeltCount").textContent = axis.meltCount + " 段";
+      document.getElementById("axisNormalDmg").textContent = fmt(axis.normalExpected);
+      document.getElementById("axisC6Dmg").textContent = fmt(axis.c6Expected);
+      document.getElementById("axisTotalMult").textContent = fmt1(axis.totalMult) + "%";
+      document.getElementById("axisVsFirst").textContent = first.expected > 0 ? (axis.expected / first.expected).toFixed(3) + " 倍" : "-";
+      document.getElementById("axisProcess").innerHTML =
+        "全轴期望 = 常规轴 " + fmt(axis.normalExpected) + " + C6天火 " + fmt(axis.c6Expected) + "。" +
+        "默认融化段只包含 Z、Q、Z、P、P、P；Q战意追加逐段处理：Z1无，Q与Q后重击有，s/P无。";
 
-        document.getElementById("note").innerHTML =
-          "当前首刀期望伤害下，最优先补：" + marginal[0].name +
-          "。本工具只适配火希茜班首Q，不模拟完整时间轴。";
-      }
+      renderMarginal("axisMarginalTable", calcMarginal(c, "axis"));
+      renderAxisBreakdown(axis.rows);
+      renderSources(p.sources);
+      renderCompare(snapshotCurrent());
+    }
 
-      const sourceTable = document.getElementById("sourceTable");
-      sourceTable.innerHTML = "";
-
-      for (const s of p.sources) {
+    function renderMarginal(id, rows) {
+      const tbody = document.getElementById(id);
+      tbody.innerHTML = "";
+      rows.forEach(r => {
         const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${s.name}</td>
-          <td>${s.type}</td>
-          <td>${s.value}</td>
-        `;
-        sourceTable.appendChild(tr);
-      }
-
-      renderCompare({
-        time: new Date().toISOString(),
-        cons: {
-          mavuika: c.cons.mavuika,
-          bennett: c.cons.bennett,
-          xilonen: c.cons.xilonen,
-          citlali: c.cons.citlali
-        },
-        panel: {
-          baseAtk: p.baseAtk,
-          finalAtk: p.finalAtk,
-          finalEM: p.finalEM,
-          finalCR: p.finalCR,
-          finalCD: p.finalCD,
-          atkPctBuff: p.atkPctBuff,
-          flatAtkBuff: p.flatAtkBuff,
-          dmgBonus: p.dmgBonus,
-          resShred: p.resShred,
-          finalRes: p.finalRes,
-          resMult: p.resMult,
-          defReduction: p.defReduction,
-          defMult: p.defMult,
-          reactionMult: p.reactionMult,
-          totalBaseDmg: p.totalBaseDmg,
-          expected,
-          crit,
-          nonCrit
-        }
+        tr.innerHTML = `<td>${r.name}</td><td>${r.add}</td><td>${pct(r.gain)}</td>`;
+        tbody.appendChild(tr);
       });
     }
 
-
-    const COMPARE_KEY = "mwkFirstHitCompare.v1";
-    let compareBaseline = null;
-
-    function snapshotCurrent() {
-      const c = readConfig();
-      const p = buildPanel(c);
-      return {
-        time: new Date().toISOString(),
-        cons: {
-          mavuika: c.cons.mavuika,
-          bennett: c.cons.bennett,
-          xilonen: c.cons.xilonen,
-          citlali: c.cons.citlali
-        },
-        fields: collectPlainFields(),
-        panel: {
-          baseAtk: p.baseAtk,
-          finalAtk: p.finalAtk,
-          finalEM: p.finalEM,
-          finalCR: p.finalCR,
-          finalCD: p.finalCD,
-          atkPctBuff: p.atkPctBuff,
-          flatAtkBuff: p.flatAtkBuff,
-          dmgBonus: p.dmgBonus,
-          resShred: p.resShred,
-          finalRes: p.finalRes,
-          resMult: p.resMult,
-          defReduction: p.defReduction,
-          defMult: p.defMult,
-          reactionMult: p.reactionMult,
-          totalBaseDmg: p.totalBaseDmg,
-          expected: calcDamage(p, "expected"),
-          crit: calcDamage(p, "crit"),
-          nonCrit: calcDamage(p, "nonCrit")
-        }
-      };
+    function axisBuffText(buffs) {
+      const b = normalizeShortBuffs(buffs);
+      const drops = [];
+      if (!b.bennett) drops.push("班");
+      if (!b.noblesse) drops.push("宗室");
+      if (!b.ttds) drops.push("讨龙");
+      if (!b.petra) drops.push("磐岩");
+      return drops.length ? "掉" + drops.join("/") : "吃满";
     }
 
-    function collectPlainFields() {
-      const fields = {};
-      document.querySelectorAll("input, select").forEach(el => {
-        if (!el.id) return;
-        fields[el.id] = el.type === "checkbox" ? el.checked : el.value;
+    function renderAxisBreakdown(rows) {
+      const tbody = document.getElementById("axisBreakdownTable");
+      tbody.innerHTML = "";
+      rows.forEach(r => {
+        const tr = document.createElement("tr");
+        const qfsText = r.qfs ? "是" + (r.qfsBonus ? " +" + fmt1(r.qfsBonus) + "%" : "") : "否";
+        const buffText = r.buffs ? axisBuffText(r.buffs) : "-";
+        tr.innerHTML = `<td>${escapeHtml(r.name)}</td><td>${fmt1(r.mult)}%</td><td>${qfsText}</td><td>${buffText}</td><td>${r.reactionOn ? "是" : "否"}</td><td>${fmt(r.expected)}</td><td>${fmt(r.crit)}</td><td>${fmt(r.nonCrit)}</td>`;
+        tbody.appendChild(tr);
       });
-      return fields;
+    }
+
+    function renderSources(sources) {
+      const tbody = document.getElementById("sourceTable");
+      tbody.innerHTML = "";
+      sources.forEach(s => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.type)}</td><td>${escapeHtml(s.value)}</td>`;
+        tbody.appendChild(tr);
+      });
     }
 
     function consText(cons) {
       return "玛C" + cons.mavuika + " / 班C" + cons.bennett + " / 希C" + cons.xilonen + " / 茜C" + cons.citlali;
-    }
-
-    function signedNumber(n, digits = 0) {
-      if (!Number.isFinite(n)) return "-";
-      const sign = n > 0 ? "+" : "";
-      return sign + Number(n).toFixed(digits);
     }
 
     function signedFmt(n) {
@@ -1274,71 +1652,76 @@
       return sign + (r * 100).toFixed(2) + "%";
     }
 
-    function compareRow(name, before, after, formatter = fmt, digitsForDelta = 0, addPercentChange = false) {
+    function compareRow(name, before, after, formatter = fmt, showPct = true) {
       const delta = after - before;
-      const percentText = addPercentChange ? "（" + signedPctChange(after, before) + "）" : "";
-      return `
-        <tr>
-          <td>${name}</td>
-          <td>${formatter(before)}</td>
-          <td>${formatter(after)}</td>
-          <td>${digitsForDelta === 0 ? signedFmt(delta) : signedNumber(delta, digitsForDelta)}${percentText}</td>
-        </tr>
-      `;
+      const pctText = showPct ? "（" + signedPctChange(after, before) + "）" : "";
+      return `<tr><td>${name}</td><td>${formatter(before)}</td><td>${formatter(after)}</td><td>${signedFmt(delta)}${pctText}</td></tr>`;
     }
 
-    function renderCompare(currentSnapshot = null) {
+    function snapshotCurrent() {
+      const c = readConfig();
+      const first = calcFirst(c);
+      const axis = calcAxis(c);
+      return {
+        time: new Date().toISOString(),
+        cons: clone(c.cons),
+        fields: collectPlainFields(),
+        axisRows: clone(axisRows),
+        panel: {
+          finalAtk: first.panel.finalAtk,
+          finalEM: first.panel.finalEM,
+          finalCR: first.panel.finalCR,
+          finalCD: first.panel.finalCD,
+          dmgBonus: first.panel.dmgBonus,
+          resMult: first.panel.resMult,
+          defMult: first.panel.defMult,
+          reactionMult: first.panel.reactionMult,
+          firstExpected: first.expected,
+          firstCrit: first.crit,
+          axisExpected: axis.expected,
+          axisCrit: axis.crit,
+          axisMeltCount: axis.meltCount,
+          axisC6Expected: axis.c6Expected
+        }
+      };
+    }
+
+    function renderCompare(cur) {
       const box = document.getElementById("compareBox");
       const summary = document.getElementById("compareSummary");
       const table = document.getElementById("compareTable");
-
-      if (!box || !summary || !table) return;
-
       if (!compareBaseline) {
         box.style.display = "none";
         return;
       }
-
-      const cur = currentSnapshot || snapshotCurrent();
       const b = compareBaseline.panel;
       const a = cur.panel;
-
       box.style.display = "block";
       summary.innerHTML =
-        "对比前：<strong>" + consText(compareBaseline.cons) + "</strong>　" +
-        "当前任意改动后：<strong>" + consText(cur.cons) + "</strong><br>" +
-        "首刀暴击变化：<strong>" + signedFmt(a.crit - b.crit) + "（" + signedPctChange(a.crit, b.crit) + "）</strong>　" +
-        "期望变化：<strong>" + signedFmt(a.expected - b.expected) + "（" + signedPctChange(a.expected, b.expected) + "）</strong>";
-
+        "对比前：<strong>" + consText(compareBaseline.cons) + "</strong>　当前：<strong>" + consText(cur.cons) + "</strong><br>" +
+        "首刀期望变化：<strong>" + signedFmt(a.firstExpected - b.firstExpected) + "（" + signedPctChange(a.firstExpected, b.firstExpected) + "）</strong>　" +
+        "全轴期望变化：<strong>" + signedFmt(a.axisExpected - b.axisExpected) + "（" + signedPctChange(a.axisExpected, b.axisExpected) + "）</strong>";
       table.innerHTML = "";
-      table.innerHTML += compareRow("首刀期望伤害", b.expected, a.expected, fmt, 0, true);
-      table.innerHTML += compareRow("首刀暴击伤害", b.crit, a.crit, fmt, 0, true);
-      table.innerHTML += compareRow("首刀不暴击伤害", b.nonCrit, a.nonCrit, fmt, 0, true);
-      table.innerHTML += compareRow("最终攻击力", b.finalAtk, a.finalAtk, fmt, 0, false);
-      table.innerHTML += compareRow("最终精通", b.finalEM, a.finalEM, fmt, 0, false);
-      table.innerHTML += compareRow("增伤区", b.dmgBonus, a.dmgBonus, x => fmt1(x) + "%", 1, false);
-      table.innerHTML += compareRow("减抗合计", b.resShred, a.resShred, x => fmt1(x) + "%", 1, false);
-      table.innerHTML += compareRow("最终火抗", b.finalRes, a.finalRes, x => fmt1(x) + "%", 1, false);
-      table.innerHTML += compareRow("抗性乘区", b.resMult, a.resMult, fmt2, 4, true);
-      table.innerHTML += compareRow("防御乘区", b.defMult, a.defMult, fmt2, 4, true);
-      table.innerHTML += compareRow("反应乘区", b.reactionMult, a.reactionMult, fmt2, 4, true);
-      table.innerHTML += compareRow("总基础伤害区", b.totalBaseDmg, a.totalBaseDmg, fmt, 0, true);
+      table.innerHTML += compareRow("首刀期望伤害", b.firstExpected, a.firstExpected, fmt, true);
+      table.innerHTML += compareRow("首刀暴击伤害", b.firstCrit, a.firstCrit, fmt, true);
+      table.innerHTML += compareRow("全轴期望伤害", b.axisExpected, a.axisExpected, fmt, true);
+      table.innerHTML += compareRow("全轴全暴击伤害", b.axisCrit, a.axisCrit, fmt, true);
+      table.innerHTML += compareRow("最终攻击力", b.finalAtk, a.finalAtk, fmt, false);
+      table.innerHTML += compareRow("最终精通", b.finalEM, a.finalEM, fmt, false);
+      table.innerHTML += compareRow("C6天火期望", b.axisC6Expected, a.axisC6Expected, fmt, true);
+      table.innerHTML += compareRow("反应段数", b.axisMeltCount, a.axisMeltCount, x => x.toFixed(0), false);
     }
 
     function setCompareBaseline() {
       compareBaseline = snapshotCurrent();
-      try {
-        localStorage.setItem(COMPARE_KEY, JSON.stringify(compareBaseline));
-      } catch (err) {}
+      try { localStorage.setItem(COMPARE_KEY, JSON.stringify(compareBaseline)); } catch (err) {}
       renderCompare(compareBaseline);
     }
 
     function clearCompareBaseline() {
       compareBaseline = null;
-      try {
-        localStorage.removeItem(COMPARE_KEY);
-      } catch (err) {}
-      renderCompare();
+      try { localStorage.removeItem(COMPARE_KEY); } catch (err) {}
+      renderCompare(snapshotCurrent());
     }
 
     function loadCompareBaseline() {
@@ -1346,77 +1729,35 @@
         const raw = localStorage.getItem(COMPARE_KEY);
         if (!raw) return;
         const data = JSON.parse(raw);
-        if (data && data.panel && data.cons) {
-          compareBaseline = data;
-        }
-      } catch (err) {
-        compareBaseline = null;
-      }
+        if (data && data.panel && data.cons) compareBaseline = data;
+      } catch (err) { compareBaseline = null; }
     }
 
-    const CACHE_KEY = "mwkFirstHitCalc.v1";
-    let cacheTimer = null;
-    let isRestoringCache = false;
-
-    function renderConsButtons() {
-      const map = {
-        mavuika: "mavuikaButtons",
-        bennett: "bennettButtons",
-        xilonen: "xilonenButtons",
-        citlali: "citlaliButtons"
-      };
-
-      Object.keys(map).forEach(name => {
-        document.querySelectorAll("#" + map[name] + " .small-btn").forEach((btn, index) => {
-          btn.classList.toggle("active", index === state[name]);
-        });
+    function collectPlainFields() {
+      const fields = {};
+      document.querySelectorAll("input, select").forEach(el => {
+        if (!el.id) return;
+        if (el.id === "presetName" || el.id === "presetSelect") return;
+        fields[el.id] = el.type === "checkbox" ? el.checked : el.value;
       });
-    }
-
-    function updateCacheStatus(message) {
-      const el = document.getElementById("cacheStatus");
-      if (el) {
-        el.textContent = "缓存状态：" + message;
-      }
+      return fields;
     }
 
     function collectCacheData() {
-      const fields = {};
-
-      document.querySelectorAll("input, select").forEach(el => {
-        if (!el.id) return;
-
-        if (el.type === "checkbox") {
-          fields[el.id] = el.checked;
-        } else {
-          fields[el.id] = el.value;
-        }
-      });
-
       return {
-        version: 1,
+        version: 5,
         updatedAt: new Date().toISOString(),
-        state: {
-          mavuika: state.mavuika,
-          bennett: state.bennett,
-          xilonen: state.xilonen,
-          citlali: state.citlali
-        },
-        fields
+        state: clone(state),
+        fields: collectPlainFields(),
+        axisRows: clone(axisRows)
       };
     }
 
     function saveCache(showMessage = false) {
       if (isRestoringCache) return;
-
       try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(collectCacheData()));
-
-        if (showMessage) {
-          updateCacheStatus("已手动保存。");
-        } else {
-          updateCacheStatus("已自动保存。");
-        }
+        updateCacheStatus(showMessage ? "已手动保存。" : "已自动保存。");
       } catch (err) {
         updateCacheStatus("保存失败，浏览器可能禁用了 localStorage。");
       }
@@ -1424,54 +1765,55 @@
 
     function scheduleSaveCache() {
       clearTimeout(cacheTimer);
-      cacheTimer = setTimeout(() => saveCache(false), 150);
+      cacheTimer = setTimeout(() => saveCache(false), 180);
     }
 
     function loadCache() {
       try {
         const raw = localStorage.getItem(CACHE_KEY);
-
         if (!raw) {
+          axisRows = normalizeAxisRows(defaultAxisRows("sixMelt"));
+          renderAxisTable();
           updateCacheStatus("未发现缓存，当前为默认配置。");
           return;
         }
-
         const data = JSON.parse(raw);
-
         if (!data || !data.fields) {
+          axisRows = normalizeAxisRows(defaultAxisRows("sixMelt"));
+          renderAxisTable();
           updateCacheStatus("缓存格式异常，已忽略。");
           return;
         }
-
         isRestoringCache = true;
-
         if (data.state) {
-          state.mavuika = Number(data.state.mavuika ?? state.mavuika);
-          state.bennett = Number(data.state.bennett ?? state.bennett);
-          state.xilonen = Number(data.state.xilonen ?? state.xilonen);
-          state.citlali = Number(data.state.citlali ?? state.citlali);
+          state.mavuika = Number(data.state.mavuika ?? 0);
+          state.bennett = Number(data.state.bennett ?? 0);
+          state.xilonen = Number(data.state.xilonen ?? 0);
+          state.citlali = Number(data.state.citlali ?? 0);
         }
-
         renderConsButtons();
-
         document.querySelectorAll("input, select").forEach(el => {
           if (!el.id || !(el.id in data.fields)) return;
-
-          if (el.type === "checkbox") {
-            el.checked = Boolean(data.fields[el.id]);
-          } else {
-            el.value = data.fields[el.id];
-          }
+          if (el.type === "checkbox") el.checked = Boolean(data.fields[el.id]);
+          else el.value = data.fields[el.id];
         });
-
+        axisRows = normalizeAxisRows(data.axisRows);
         isRestoringCache = false;
         updateLocks();
+        renderAxisTable();
         calculate();
         updateCacheStatus("已读取上次配置。");
       } catch (err) {
         isRestoringCache = false;
+        axisRows = normalizeAxisRows(defaultAxisRows("sixMelt"));
+        renderAxisTable();
         updateCacheStatus("读取失败，缓存可能已损坏。");
       }
+    }
+
+    function updateCacheStatus(message) {
+      const el = document.getElementById("cacheStatus");
+      if (el) el.textContent = "缓存状态：" + message;
     }
 
     function clearCache() {
@@ -1483,22 +1825,127 @@
       }
     }
 
-    loadCompareBaseline();
-    loadCache();
-    updateLocks();
-    calculate();
+    function getArtifactPresets() {
+      try {
+        const raw = localStorage.getItem(PRESET_KEY);
+        const data = raw ? JSON.parse(raw) : {};
+        return data && typeof data === "object" ? data : {};
+      } catch (err) { return {}; }
+    }
 
-    document.querySelectorAll("input, select").forEach(el => {
-      el.addEventListener("input", () => {
-        calculate();
-        scheduleSaveCache();
-      });
+    function setArtifactPresets(data) {
+      localStorage.setItem(PRESET_KEY, JSON.stringify(data));
+      renderPresetSelect();
+    }
 
-      el.addEventListener("change", () => {
-        calculate();
-        scheduleSaveCache();
+    function renderPresetSelect() {
+      const select = document.getElementById("presetSelect");
+      const presets = getArtifactPresets();
+      const names = Object.keys(presets).sort();
+      select.innerHTML = "";
+      if (names.length === 0) {
+        select.innerHTML = '<option value="">暂无预设</option>';
+        return;
+      }
+      names.forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
       });
-    });
+    }
+
+    function setPresetStatus(msg) {
+      document.getElementById("presetStatus").textContent = msg;
+    }
+
+    function saveArtifactPreset() {
+      const name = document.getElementById("presetName").value.trim();
+      if (!name) {
+        setPresetStatus("请先填写预设名。");
+        return;
+      }
+      const presets = getArtifactPresets();
+      presets[name] = {
+        mavPanelAtk: val("mavPanelAtk"),
+        mavEM: val("mavEM"),
+        mavCritRate: val("mavCritRate"),
+        mavCritDmg: val("mavCritDmg"),
+        mavSelfDmg: val("mavSelfDmg"),
+        mavSigActive: document.getElementById("mavSigActive").checked,
+        obsidian2: document.getElementById("obsidian2").checked,
+        obsidian4: document.getElementById("obsidian4").checked,
+        savedAt: new Date().toISOString()
+      };
+      setArtifactPresets(presets);
+      document.getElementById("presetSelect").value = name;
+      setPresetStatus("已保存预设：" + name + "。");
+    }
+
+    function loadArtifactPreset() {
+      const name = val("presetSelect");
+      const presets = getArtifactPresets();
+      if (!name || !presets[name]) {
+        setPresetStatus("没有选中可读取的预设。");
+        return;
+      }
+      const p = presets[name];
+      ["mavPanelAtk", "mavEM", "mavCritRate", "mavCritDmg", "mavSelfDmg"].forEach(id => {
+        if (id in p) document.getElementById(id).value = p[id];
+      });
+      ["mavSigActive", "obsidian2", "obsidian4"].forEach(id => {
+        if (id in p) document.getElementById(id).checked = Boolean(p[id]);
+      });
+      calculate();
+      saveCache();
+      setPresetStatus("已读取预设：" + name + "。");
+    }
+
+    function deleteArtifactPreset() {
+      const name = val("presetSelect");
+      const presets = getArtifactPresets();
+      if (!name || !presets[name]) {
+        setPresetStatus("没有选中可删除的预设。");
+        return;
+      }
+      delete presets[name];
+      setArtifactPresets(presets);
+      setPresetStatus("已删除预设：" + name + "。");
+    }
+
+    function bindGlobalInputs() {
+      document.querySelectorAll("input, select").forEach(el => {
+        if (!el.id) return;
+        if (el.closest("#axisTable")) return;
+        if (el.id === "presetName" || el.id === "presetSelect") return;
+        el.addEventListener("input", () => {
+          if (["mavQLevel", "mavELevel"].includes(el.id)) updateAxisMultipliersFromTalents(false);
+          calculate();
+          scheduleSaveCache();
+        });
+        el.addEventListener("change", () => {
+          if (["mavQLevel", "mavELevel"].includes(el.id)) updateAxisMultipliersFromTalents(false);
+          calculate();
+          scheduleSaveCache();
+        });
+      });
+    }
+
+    function init() {
+      renderPresetSelect();
+      loadCompareBaseline();
+      loadCache();
+      updateLocks();
+      renderConsButtons();
+      bindGlobalInputs();
+      if (!axisRows.length) {
+        axisRows = normalizeAxisRows(defaultAxisRows("sixMelt"));
+        renderAxisTable();
+      }
+      calculate();
+    }
+
+    init();
   </script>
 </body>
 </html>
