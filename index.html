@@ -630,7 +630,7 @@
       <label data-role="lock" data-character="citlali" data-cons="1">C1星刃倍率：茜EM× <input id="citC1EMScale" type="number" step="0.1" value="2"></label>
       <label data-role="lock" data-character="citlali" data-cons="1">首刀计入茜C1 <input id="citC1FirstHit" type="checkbox" checked></label>
       <label data-role="lock" data-character="citlali" data-cons="1">全轴茜C1次数 <input id="citC1AxisHits" type="number" min="0" step="1" value="0"></label>
-      <label>勇者/烬城火伤% <input id="scrollDmg" type="number" step="0.1" value="40"></label>
+      <label>勇者套火增伤% <input id="scrollDmg" type="number" step="0.1" value="40"></label>
       <label>讨龙精炼 <select id="ttdsRefine">
         <option value="24">R1 24%</option>
         <option value="30">R2 30%</option>
@@ -1254,7 +1254,7 @@
 
       if (c.scrollActive) {
         dmgBonus += c.scrollDmg;
-        addSource("茜特菈莉烬城/勇者4", "火伤", c.scrollDmg + "%");
+        addSource("茜特菈莉勇者4", "火增伤", c.scrollDmg + "%");
       }
 
       return { baseAtk, atkPctBuff, flatAtkBuff, emBuff, critRateBuff, critDmgBuff, dmgBonus, resShred, defReduction, sources };
