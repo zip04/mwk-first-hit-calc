@@ -383,7 +383,7 @@
   </style>
 </head>
 <body>
-  <h1>火希茜班·玛薇卡 Q 首刀 + ZQZzzszPszPszP 全轴计算器 v7</h1>
+  <h1>火希茜班·玛薇卡 Q 首刀 + 融化序列全轴计算器 </h1>
 
   <div class="topbar">
     <div class="card">
@@ -399,23 +399,23 @@
 
     <div class="card">
       <h2>圣遗物/面板预设</h2>
-      <label>预设名 <input id="presetName" type="text" placeholder="如：黑曜攻火暴A"></label>
+      <label>预设名 <input id="presetName" type="text" placeholder="如：高精通融化套A"></label>
       <label>选择预设 <select id="presetSelect"></select></label>
       <div class="button-row">
         <button type="button" class="small-btn" onclick="saveArtifactPreset()">保存当前面板</button>
         <button type="button" class="small-btn" onclick="loadArtifactPreset()">读取</button>
         <button type="button" class="small-btn danger" onclick="deleteArtifactPreset()">删除</button>
       </div>
-      <div class="note" id="presetStatus">保存内容：裸面板攻击、精通、暴击率、暴击伤害、火伤/自身增伤，以及黑曜2/4、专武触发开关。</div>
+      <div class="note" id="presetStatus">保存内容：裸面板攻击、精通、暴击率、暴击伤害、火伤/自身增伤，以及黑曜2/4、专武触发开关。选择好预设后点击“读取”，即可载入面板数据</div>
     </div>
 
     <div class="card">
       <h2>当前简化假设</h2>
       <div class="note">
-        <span class="pill">全轴默认</span>Z Q Z z z s z P s z P s z P。<br>
-        <span class="pill">动作定义</span>z/Z 为重击循环伤害，P 为重击终结伤害，s 为闪避伤害。<br>
-        <span class="pill">六融默认</span>只让 Z、Q、Z、P、P、P 吃反应；s 与小写 z 默认不反应。<br>
-        <span class="pill">C6天火</span>默认 500% × 3 次，不附着、不融化；Q战意追加逐段区分。
+        <span class="pill">默认序列</span>六融Z Q Z z z s z P s z P s z P。<br>
+        <span class="pill">动作定义</span>z/Z ：重击循环伤害，P ：重击终结伤害，s ：闪避伤害。<br>
+        <span class="pill">六融轴</span>只让 Z、Q、Z、P、P、P 吃反应；s 与小写 z 不反应。<br>
+        <span class="pill">C6天火</span>简化为 500% × 3 次，无附着、不融化；Q前1次，Q后两次。
       </div>
     </div>
   </div>
